@@ -5,6 +5,7 @@ from Model.model import EmbeddingModel
 from Model.target_encoder import TargetEncoder
 from torch_geometric.datasets import Planetoid, Amazon
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
+from target_update import ema_target_weights
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -22,21 +23,23 @@ def train_epoch():
     # Generate Targets based on Bernoulli Distribution
     target_loss = 0
     embedding_model.zero_grad()
-    for _ in range(num_targets):
+    for i in range(num_targets):
         target_embedding = target_encoder(graph)
         _, _, node_mask = dropout_node(graph.edge_index)
 
         # Mask based features
         target_features = node_mask.unsqueeze(1)*target_embedding
         encoder_mask_features = node_mask.unsqueeze(
-            1)*encoder_embeddings  # Pass positional information to Nodes
+            1)*encoder_embeddings[i]  # Pass positional information to Nodes
 
-        target_loss += l2_loss(target_features, encoder_mask_features)
+        target_loss += l2_loss(encoder_mask_features, target_features)
 
     loss = target_loss/num_targets
     loss.backward()
 
     optimizer.step()
+    # Update target encoder weights
+    ema_target_weights(target_encoder, embedding_model.context_model)
 
     return loss
 
@@ -44,6 +47,7 @@ def train_epoch():
 def training_loop():
     for epoch in range(EPOCHS):
         embedding_model.train()
+        target_encoder.requires_grad_ = False
         train_loss = train_epoch()
 
         embedding_model.eval()
@@ -106,6 +110,9 @@ if __name__ == '__main__':
         params=embedding_model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
         optimizer, T_0=50, verbose=True)
+
+    init_weights(target_encoder)
+    init_weights(embedding_model)
 
     wandb.init(
         project="Joint Graph embedding development",
