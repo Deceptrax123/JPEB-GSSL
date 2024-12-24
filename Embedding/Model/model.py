@@ -11,16 +11,16 @@ class EmbeddingModel(Module):
         super(EmbeddingModel, self).__init__()
 
         self.context_model = ContextEncoder(in_features=num_features)
-        self.predictor_model = ContextTargetPredictor(in_features=num_features)
+        self.predictor_model = ContextTargetPredictor(dims=num_features)
         self.num_targets = num_targets
 
     def forward(self, G):
         # Consider a context subgraph
-        edge_index, _, node_mask = dropout_node(G.edge_index)
+        edge_index, _, _ = dropout_node(G.edge_index)  # Bernoulli Distribution
         x = self.context_model(G.x, edge_index)
 
         e_u = []
-        for j in range(self.num_targets):
+        for _ in range(self.num_targets):
             x = self.predictor_model(x)
             e_u.append(x)
 
