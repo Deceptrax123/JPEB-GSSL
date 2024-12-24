@@ -14,7 +14,18 @@ import gc
 from dotenv import load_dotenv
 
 
-def main():
+def train_epoch():
+
+    pass
+
+
+def training_loop():
+    for epoch in range(EPOCHS):
+        context_encoder.train(True)
+        target_encoder.train(True)
+
+
+if __name__ == '__main__':
     tmp.set_sharing_strategy('file_system')
     torch.autograd.set_detect_anomaly(True)
     load_dotenv('.env')
@@ -60,7 +71,3 @@ def main():
             "Dataset": "Planetoid and Amazon"
         }
     )
-
-
-if __name__ == '__main__':
-    main()

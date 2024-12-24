@@ -15,8 +15,9 @@ class ContextEncoder(Module):
                              out_channels=in_features*4)
 
     def forward(self, x, edge_index):
-        x = self.gcn1(x, edge_index).relu()
-        x = self.gcn2(x, edge_index).relu()
-        x = self.gcn3(x, edge_index).relu()
+
+        x = F.relu(self.gcn1(x, edge_index))
+        x = F.relu(self.gcn2(x, edge_index))
+        x = F.relu(self.gcn3(x, edge_index))
 
         return x
