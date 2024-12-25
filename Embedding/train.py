@@ -41,7 +41,7 @@ def train_epoch():
     loss.backward()
 
     optimizer.step()
-    # Update target encoder weights
+    # Update target encoder weight
     ema_target_weights(target_encoder, embedding_model.context_model)
 
     return loss
@@ -58,6 +58,8 @@ def training_loop():
         wandb.log({
             "Embedding Loss": train_loss
         })
+
+        print("Embedding Loss: ", train_loss)
 
         # Save weights
         if (epoch+1) % 2 == 0:

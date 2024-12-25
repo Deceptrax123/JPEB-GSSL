@@ -3,6 +3,9 @@ from torch_geometric import nn
 
 
 def ema_target_weights(target_encoder, context_encoder, sf=0.9):
-    for (m1, m2) in zip(target_encoder.modules(), context_encoder.modules()):
-        if isinstance(m1, (nn.ChebConv)):
-            m1.weight.data = (m2.weight.data*sf)+(m1.weight.data*(1-sf))
+    # Update based on EMA
+    common_keys = target_encoder.state_dict().keys()
+
+    for k in common_keys:
+        target_encoder.state_dict()[k] = (target_encoder.state_dict()[
+            k]*sf)+(context_encoder.state_dict()[k]*(1-sf))
