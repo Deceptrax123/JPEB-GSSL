@@ -56,7 +56,8 @@ def training_loop():
         embedding_model.eval()
 
         wandb.log({
-            "Embedding Loss": train_loss.item()
+            "Embedding Loss": train_loss.item(),
+            "Learning Rate": scheduler.get_last_lr()
         })
 
         print("Epoch: ", epoch+1)
@@ -65,11 +66,11 @@ def training_loop():
         # Save weights
         if (epoch+1) % 5 == 0:
             save_encoder_weights = os.getenv(
-                "cora_encoder")+f"model_{epoch+1}.pt"
+                "computer_encoder")+f"model_{epoch+1}.pt"
             save_arch_weights = os.getenv(
-                "cora_architecture")+f"mdoel_{epoch+1}.pt"
+                "pubmed_architecture")+f"mdoel_{epoch+1}.pt"
 
-            torch.save(embedding_model.state_dict(), save_arch_weights)
+            # torch.save(embedding_model.state_dict(), save_arch_weights)
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
         scheduler.step()
@@ -98,11 +99,11 @@ if __name__ == '__main__':
     elif inp_name == 'photos':
         graph = Amazon(root=photos_path, name='Photo')
 
-    params = {
-        'batch_size': 32,
-        'shuffle': True,
-        'num_workers': 0
-    }
+    # params = {
+    #     'batch_size': 32,
+    #     'shuffle': True,
+    #     'num_workers': 0
+    # }
     num_targets = 3
     embedding_model = EmbeddingModel(
         num_features=graph.x.size(1), num_targets=3)
@@ -115,7 +116,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(
         params=embedding_model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=50, verbose=True)
+        optimizer, T_0=10)
 
     init_weights(target_encoder)
     init_weights(embedding_model)
