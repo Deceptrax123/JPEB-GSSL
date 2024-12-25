@@ -56,17 +56,18 @@ def training_loop():
         embedding_model.eval()
 
         wandb.log({
-            "Embedding Loss": train_loss
+            "Embedding Loss": train_loss.item()
         })
 
-        print("Embedding Loss: ", train_loss)
+        print("Epoch: ", epoch+1)
+        print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 2 == 0:
-            save_encoder_weights = f"Embedding/Weights/Encoder/Run_1/model_{
-                epoch+1}.pt"
-            save_arch_weights = f"Embedding/Weights/Architecture/Run_1/model_{
-                epoch+1}.pt"
+        if (epoch+1) % 5 == 0:
+            save_encoder_weights = os.getenv(
+                "cora_encoder")+f"model_{epoch+1}.pt"
+            save_arch_weights = os.getenv(
+                "cora_architecture")+f"mdoel_{epoch+1}.pt"
 
             torch.save(embedding_model.state_dict(), save_arch_weights)
             torch.save(embedding_model.context_model.state_dict(),
