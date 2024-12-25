@@ -9,7 +9,7 @@ class ContextTargetPredictor(Module):
 
         self.gc1 = GCNConv(
             in_channels=dims, out_channels=dims, normalize=False)
-        self.norm = GraphNorm(dims//2)
+        self.norm = GraphNorm(dims)
         self.relu = ReLU()
 
         self.gc2 = GCNConv(out_channels=dims,

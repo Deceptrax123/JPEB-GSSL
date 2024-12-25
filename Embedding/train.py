@@ -34,6 +34,9 @@ def train_epoch():
 
         target_loss += l2_loss(encoder_mask_features, target_features)
 
+        del target_embedding, target_features, node_mask, encoder_mask_features
+    del encoder_embeddings
+
     loss = target_loss/num_targets
     loss.backward()
 
@@ -47,7 +50,7 @@ def train_epoch():
 def training_loop():
     for epoch in range(EPOCHS):
         embedding_model.train()
-        target_encoder.requires_grad_ = False
+        # target_encoder.requires_grad_ = False
         train_loss = train_epoch()
 
         embedding_model.eval()
@@ -102,8 +105,8 @@ if __name__ == '__main__':
         num_features=graph.x.size(1), num_targets=3)
     target_encoder = TargetEncoder(in_features=graph.x.size(1))
 
-    split = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    graph = split(graph)
+    # split = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+    # graph = split(graph)
 
     l2_loss = nn.MSELoss()
     optimizer = torch.optim.Adam(
@@ -121,3 +124,5 @@ if __name__ == '__main__':
             "Dataset": "Planetoid and Amazon"
         }
     )
+
+    training_loop()

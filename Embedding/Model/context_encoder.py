@@ -8,11 +8,11 @@ class ContextEncoder(Module):
         super(ContextEncoder, self).__init__()
 
         self.gcn1 = ChebConv(in_channels=in_features,
-                             out_channels=in_features*2)
+                             out_channels=in_features*2, K=3)
         self.gcn2 = ChebConv(in_channels=in_features*2,
-                             out_channels=in_features*4)
+                             out_channels=in_features*4, K=3)
         self.gcn3 = ChebConv(in_channels=in_features*4,
-                             out_channels=in_features*4)
+                             out_channels=in_features*4, K=3)
 
     def forward(self, x, edge_index):
 

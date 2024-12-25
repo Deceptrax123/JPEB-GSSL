@@ -11,7 +11,7 @@ class EmbeddingModel(Module):
         super(EmbeddingModel, self).__init__()
 
         self.context_model = ContextEncoder(in_features=num_features)
-        self.predictor_model = ContextTargetPredictor(dims=num_features)
+        self.predictor_model = ContextTargetPredictor(dims=num_features*4)
         self.num_targets = num_targets
 
     def forward(self, G):
@@ -21,7 +21,7 @@ class EmbeddingModel(Module):
 
         e_u = []
         for _ in range(self.num_targets):
-            x = self.predictor_model(x)
-            e_u.append(x)
+            v = self.predictor_model(x, edge_index)
+            e_u.append(v)
 
-        return torch.tensor(e_u)
+        return e_u
