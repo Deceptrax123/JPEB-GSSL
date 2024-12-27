@@ -105,24 +105,19 @@ if __name__ == '__main__':
     split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
     graph = split_function(graph)
 
-    # params = {
-    #     'batch_size': 32,
-    #     'shuffle': True,
-    #     'num_workers': 0
-    # }
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
-
-    objective_function = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(
-        params=model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=10)
 
     weights_path = os.getenv("cora_encoder")+"model_140.pt"
     model.encoder.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     init_weights(model.classifier)
+
+    objective_function = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(
+        params=model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+    #     optimizer, T_0=10)
 
     wandb.init(
         project="Joint Graph embedding downstream tests",
