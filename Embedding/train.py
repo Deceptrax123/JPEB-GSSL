@@ -66,7 +66,7 @@ def training_loop():
         # Save weights
         if (epoch+1) % 5 == 0:
             save_encoder_weights = os.getenv(
-                "computer_encoder")+f"model_{epoch+1}.pt"
+                "photo_encoder")+f"model_{epoch+1}.pt"
             save_arch_weights = os.getenv(
                 "pubmed_architecture")+f"mdoel_{epoch+1}.pt"
 
