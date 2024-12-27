@@ -56,8 +56,7 @@ def training_loop():
         embedding_model.eval()
 
         wandb.log({
-            "Embedding Loss": train_loss.item(),
-            "Learning Rate": scheduler.get_last_lr()
+            "Embedding Loss": train_loss.item()
         })
 
         print("Epoch: ", epoch+1)
@@ -66,14 +65,14 @@ def training_loop():
         # Save weights
         if (epoch+1) % 5 == 0:
             save_encoder_weights = os.getenv(
-                "photo_encoder")+f"model_{epoch+1}.pt"
+                "cora_encoder")+f"model_{epoch+1}.pt"
             save_arch_weights = os.getenv(
                 "pubmed_architecture")+f"mdoel_{epoch+1}.pt"
 
             # torch.save(embedding_model.state_dict(), save_arch_weights)
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
-        scheduler.step()
+        # scheduler.step()
 
 
 if __name__ == '__main__':
