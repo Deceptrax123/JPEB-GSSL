@@ -46,8 +46,9 @@ if __name__ == '__main__':
         graph = Amazon(root=computers_path, name='Computers')
         weights_path = os.getenv("computers_classification")+"model_1000.pt"
     elif inp_name == 'photos':
-        graph = Amazon(root=photos_path, name='Photo')
-        weights_path = os.getenv("photos_classification")+"model_1000.pt"
+        dataset = Amazon(root=photos_path, name='Photo')
+        graph = dataset[0]
+        weights_path = os.getenv("photo_classification")+"model_65.pt"
 
     split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
     graph = split_function(graph)

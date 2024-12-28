@@ -22,7 +22,8 @@ def classification_binary_metrics(predictions, labels):
 def classification_multiclass_metrics(predictions, labels, num_classes):
     accuracy = MulticlassAccuracy(num_classes=num_classes)(predictions, labels)
     auroc = MulticlassAUROC(num_classes=num_classes)(predictions, labels)
-    f1 = MulticlassF1Score(num_classes=num_classes)(predictions, labels)
+    f1 = MulticlassF1Score(num_classes=num_classes,
+                           average='micro')(predictions, labels)
 
     return accuracy, auroc, f1
 

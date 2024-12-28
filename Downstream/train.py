@@ -72,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "pubmed_classification")+f"model_{epoch+1}.pt"
+                    "photo_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
-        weights_path = os.getenv("photo_encoder")+"model_140.pt"
+        weights_path = os.getenv("photo_encoder")+"model_265.pt"
 
     split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
     graph = split_function(graph)
