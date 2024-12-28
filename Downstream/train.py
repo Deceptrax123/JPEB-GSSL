@@ -1,4 +1,3 @@
-from torch_geometric.loader import DataLoader
 from torch_geometric.graphgym import init_weights
 from model import NodeClassifier
 from metrics import classification_multiclass_metrics, classification_binary_metrics
@@ -73,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "cora_classification")+f"model_{epoch+1}.pt"
+                    "pubmed_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -93,22 +92,27 @@ if __name__ == '__main__':
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
+        weights_path = os.getenv("cora_encoder")+"model_140.pt"
     elif inp_name == 'pubmed':
-        graph = Planetoid(root=pubmed_path, name='PubMed')
+        dataset = Planetoid(root=pubmed_path, name='PubMed')
+        graph = dataset[0]
+        weights_path = os.getenv("pubmed_encoder")+"model_130.pt"
     elif inp_name == 'citeseer':
-        graph = Planetoid(root=citeseer_path, name='CiteSeer')
+        weights_path = os.getenv("citeseer_encoder")+"model_140.pt"
     elif inp_name == 'computers':
-        graph = Amazon(root=computers_path, name='Computers')
+        dataset = Amazon(root=computers_path, name='Computers')
+        graph = dataset[0]
+        weights_path = os.getenv("computer_encoder")+"model_140.pt"
     elif inp_name == 'photos':
-        graph = Amazon(root=photos_path, name='Photo')
+        dataset = Amazon(root=photos_path, name='Photo')
+        graph = dataset[0]
+        weights_path = os.getenv("photo_encoder")+"model_140.pt"
 
     split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
     graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
-
-    weights_path = os.getenv("cora_encoder")+"model_140.pt"
     model.encoder.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     init_weights(model.classifier)
