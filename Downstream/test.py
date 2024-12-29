@@ -43,8 +43,9 @@ if __name__ == '__main__':
         graph = Planetoid(root=citeseer_path, name='CiteSeer')
         weights_path = os.getenv("citeseer_classification")+"model_1000.pt"
     elif inp_name == 'computers':
-        graph = Amazon(root=computers_path, name='Computers')
-        weights_path = os.getenv("computers_classification")+"model_1000.pt"
+        dataset = Amazon(root=computers_path, name='Computers')
+        graph = dataset[0]
+        weights_path = os.getenv("computer_classification")+"model_70.pt"
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]

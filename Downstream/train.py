@@ -72,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "photo_classification")+f"model_{epoch+1}.pt"
+                    "computer_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_encoder")+"model_140.pt"
+        weights_path = os.getenv("computer_encoder")+"model_30.pt"
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
