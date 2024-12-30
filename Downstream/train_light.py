@@ -1,7 +1,7 @@
 from torch_geometric.graphgym import init_weights
 from model_light import NodeClassifier
 from metrics import classification_multiclass_metrics, classification_binary_metrics
-from torch_geometric.datasets import Planetoid, Amazon
+from torch_geometric.datasets import Planetoid, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
@@ -72,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "citeseer_classification")+f"model_{epoch+1}.pt"
+                    "CS_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -83,16 +83,17 @@ if __name__ == '__main__':
     load_dotenv('.env')
 
     inp_name = input("Enter dataset to be used: ")
-    cora_path = os.getenv('Cora')
-    pubmed_path = os.getenv('Pubmed')
     citeseer_path = os.getenv('CiteSeer')
-    computers_path = os.getenv('Computers')
-    photos_path = os.getenv('Photo')
+    cs_path = os.getenv('CS')
 
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
         weights_path = os.getenv("citeseer_encoder")+"model_500.pt"
+    elif inp_name == 'cs':
+        dataset = Coauthor(root=cs_path, name='CS')
+        graph = dataset[0]
+        weights_path = os.getenv("CS_encoder")+"model_85.pt"
 
     split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
     graph = split_function(graph)

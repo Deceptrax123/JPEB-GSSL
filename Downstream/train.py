@@ -85,7 +85,6 @@ if __name__ == '__main__':
     inp_name = input("Enter dataset to be used: ")
     cora_path = os.getenv('Cora')
     pubmed_path = os.getenv('Pubmed')
-    citeseer_path = os.getenv('CiteSeer')
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
 

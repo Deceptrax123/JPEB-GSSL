@@ -1,6 +1,6 @@
 from model_light import NodeClassifier
 from metrics import classification_multiclass_metrics, classification_binary_metrics
-from torch_geometric.datasets import Planetoid, Amazon
+from torch_geometric.datasets import Planetoid, Coauthor
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -25,16 +25,17 @@ if __name__ == '__main__':
     load_dotenv('.env')
 
     inp_name = input("Enter dataset to be used: ")
-    cora_path = os.getenv('Cora')
-    pubmed_path = os.getenv('Pubmed')
     citeseer_path = os.getenv('CiteSeer')
-    computers_path = os.getenv('Computers')
-    photos_path = os.getenv('Photo')
+    cs_path = os.getenv('CS')
 
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
         weights_path = os.getenv("citeseer_classification")+"model_165.pt"
+    elif inp_name == 'cs':
+        dataset = Coauthor(root=cs_path, name='CS')
+        graph = dataset[0]
+        weights_path = os.getenv('CS_classification')+"model_350.pt"
 
     split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
     graph = split_function(graph)
