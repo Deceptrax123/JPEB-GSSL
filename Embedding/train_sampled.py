@@ -1,7 +1,6 @@
 from torch_geometric.utils import dropout_node
-from Model.model import EmbeddingModel
-from Model.target_encoder import TargetEncoder
-from torch_geometric.data.datapipes import functional_transform
+from Model_light.model import EmbeddingModel
+from Model_light.target_encoder import TargetEncoder
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from target_update import ema_target_weights
@@ -17,7 +16,6 @@ from dotenv import load_dotenv
 
 def train_epoch():
     # View augmentations take place in the Embedding Class.
-    sampler = T.NodeS
     encoder_embeddings = embedding_model(graph)
 
     # Generate Targets based on Bernoulli Distribution
@@ -30,7 +28,8 @@ def train_epoch():
         # Mask based features
         target_features = node_mask.unsqueeze(1)*target_embedding
         encoder_mask_features = node_mask.unsqueeze(
-            1)*encoder_embeddings[i]  # Pass positional information to Nodes
+            # Pass positional information to Nodes
+            1)*encoder_embeddings[i]
 
         target_loss += l2_loss(encoder_mask_features, target_features)
 
@@ -87,15 +86,19 @@ if __name__ == '__main__':
     cs_path = os.getenv('CS')
 
     if inp_name == 'cora':
-        graph = Planetoid(root=cora_path, name='Cora')
+        graph = Planetoid(root=cora_path, name='Cora')[0]
     elif inp_name == 'pubmed':
-        graph = Planetoid(root=pubmed_path, name='PubMed')
+        graph = Planetoid(root=pubmed_path, name='PubMed')[0]
     elif inp_name == 'citeseer':
-        graph = Planetoid(root=citeseer_path, name='CiteSeer')
+        graph = Planetoid(root=citeseer_path, name='CiteSeer')[0]
     elif inp_name == 'computers':
-        graph = Amazon(root=computers_path, name='Computers')
+        graph = Amazon(root=computers_path, name='Computers')[0]
     elif inp_name == 'photos':
-        graph = Amazon(root=photos_path, name='Photo')
+        graph = Amazon(root=photos_path, name='Photo')[0]
+    elif inp_name == 'physics':
+        graph = Coauthor(root=physics_path, name='Physics')[0]
+    elif inp_name == 'cs':
+        graph = Coauthor(root=cs_path, name="CS")[0]
 
     num_targets = 3
     embedding_model = EmbeddingModel(
