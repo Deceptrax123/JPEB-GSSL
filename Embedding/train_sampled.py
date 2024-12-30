@@ -64,7 +64,7 @@ def training_loop():
         # Save weights
         if (epoch+1) % 5 == 0:
             save_encoder_weights = os.getenv(
-                "CS_encoder")+f"model_{epoch+1}.pt"
+                "citeseer_encoder")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
