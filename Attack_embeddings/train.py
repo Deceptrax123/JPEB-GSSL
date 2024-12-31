@@ -1,7 +1,6 @@
 from torch_geometric.utils import dropout_node
 from Model.model import EmbeddingModel
 from Model.target_encoder import TargetEncoder
-from torch_geometric.data.datapipes import functional_transform
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from deeprobust.graph.data import Dpr2Pyg, Dataset
@@ -40,6 +39,7 @@ def train_epoch():
     embedding_model.zero_grad()
     for i in range(num_targets):
         target_embedding = target_encoder(graph)
+
         _, _, node_mask = dropout_node(graph.edge_index)
 
         # Mask based features
@@ -80,7 +80,7 @@ def training_loop():
         # Save weights
         if (epoch+1) % 5 == 0:
             save_encoder_weights = os.getenv(
-                "CS_encoder")+f"model_{epoch+1}.pt"
+                "cora_encoder")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -94,23 +94,9 @@ if __name__ == '__main__':
 
     inp_name = input("Enter dataset to be used: ")
     cora_path = os.getenv('Cora')
-    pubmed_path = os.getenv('Pubmed')
-    citeseer_path = os.getenv('CiteSeer')
-    computers_path = os.getenv('Computers')
-    photos_path = os.getenv('Photo')
-    physics_path = os.getenv('Physics')
-    cs_path = os.getenv('CS')
 
     if inp_name == 'cora':
-        graph = Planetoid(root=cora_path, name='Cora')
-    elif inp_name == 'pubmed':
-        graph = Planetoid(root=pubmed_path, name='PubMed')
-    elif inp_name == 'citeseer':
-        graph = Planetoid(root=citeseer_path, name='CiteSeer')
-    elif inp_name == 'computers':
-        graph = Amazon(root=computers_path, name='Computers')
-    elif inp_name == 'photos':
-        graph = Amazon(root=photos_path, name='Photo')
+        graph = Planetoid(root=cora_path, name='Cora')[0]
 
     num_targets = 3
     embedding_model = EmbeddingModel(
@@ -127,12 +113,12 @@ if __name__ == '__main__':
     perturbed_edges = generate_attack()
     graph.edge_index = perturbed_edges
 
-    wandb.init(
-        project="Joint Graph embedding Adversarial Attack",
-        config={
-            "Method": "Generative",
-            "Dataset": "Planetoid and Amazon"
-        }
-    )
+    # wandb.init(
+    #     project="Joint Graph embedding Adversarial Attack",
+    #     config={
+    #         "Method": "Generative",
+    #         "Dataset": "Planetoid and Amazon"
+    #     }
+    # )
 
-    training_loop()
+    # training_loop()

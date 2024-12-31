@@ -33,15 +33,12 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_1000.pt"
+        weights_path = os.getenv("cora_classification")+"model_60.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_classification")+"model_550.pt"
-    elif inp_name == 'citeseer':
-        graph = Planetoid(root=citeseer_path, name='CiteSeer')
-        weights_path = os.getenv("citeseer_classification")+"model_1000.pt"
+        weights_path = os.getenv("pubmed_classification")+"model_60.pt"
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
@@ -51,8 +48,8 @@ if __name__ == '__main__':
         graph = dataset[0]
         weights_path = os.getenv("photo_classification")+"model_65.pt"
 
-    split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    graph = split_function(graph)
+    # split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+    # graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)

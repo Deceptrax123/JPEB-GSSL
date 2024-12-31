@@ -72,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "computer_classification")+f"model_{epoch+1}.pt"
+                    "pubmed_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -96,8 +96,6 @@ if __name__ == '__main__':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
         weights_path = os.getenv("pubmed_encoder")+"model_130.pt"
-    elif inp_name == 'citeseer':
-        weights_path = os.getenv("citeseer_encoder")+"model_140.pt"
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
@@ -107,8 +105,8 @@ if __name__ == '__main__':
         graph = dataset[0]
         weights_path = os.getenv("photo_encoder")+"model_265.pt"
 
-    split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    graph = split_function(graph)
+    # split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+    # graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)

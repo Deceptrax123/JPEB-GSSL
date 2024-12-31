@@ -47,7 +47,7 @@ if __name__ == '__main__':
     ratio = eval(input('Enter ratio of test nodes to be distorted: '))
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_1000.pt"
+        weights_path = os.getenv("cora_classification")+"model_80.pt"
         graph = dataset[0]
         model = NodeClassifier(features=graph.x.size(1),
                                num_classes=dataset.num_classes)
@@ -56,17 +56,15 @@ if __name__ == '__main__':
         graph = dataset[0]
         model = NodeClassifier(features=graph.x.size(1),
                                num_classes=dataset.num_classes)
-        weights_path = os.getenv("pubmed_classification")+"model_550.pt"
+        weights_path = os.getenv("pubmed_classification")+"model_75.pt"
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_165.pt"
+        weights_path = os.getenv("citeseer_classification")+"model_85.pt"
         model = NodeClassifierLight(features=graph.x.size(1),
                                     num_classes=dataset.num_classes)
 
     # Add weights path here
-    split = T.RandomNodeSplit(num_val=500, num_test=1000)
-    graph = split(graph)
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     model.eval()

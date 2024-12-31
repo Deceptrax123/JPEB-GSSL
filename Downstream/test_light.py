@@ -31,14 +31,14 @@ if __name__ == '__main__':
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_165.pt"
+        weights_path = os.getenv("citeseer_classification")+"model_85.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
         weights_path = os.getenv('CS_classification')+"model_350.pt"
 
-    split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
-    graph = split_function(graph)
+    # split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
+    # graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
