@@ -4,6 +4,9 @@ from Model.target_encoder import TargetEncoder
 from torch_geometric.data.datapipes import functional_transform
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
+from deeprobust.graph.data import Dpr2Pyg, Dataset
+from deeprobust.graph.global_attack import NodeEmbeddingAttack
+from torch_geometric.utils import dense_to_sparse
 from target_update import ema_target_weights
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
@@ -13,6 +16,19 @@ import os
 import wandb
 import gc
 from dotenv import load_dotenv
+
+
+def generate_attack():
+    data_dr = Dataset(root="../", name='cora', seed=15)
+    adj, features, labels = data_dr.adj, data_dr.features, data_dr.labels
+
+    attacker = NodeEmbeddingAttack()
+    attacker.attack(adj, attack_type='remove', n_perturbations=250)
+    modified_adj = attacker.modified_adj
+    edge_index_modifed = dense_to_sparse(
+        torch.tensor(modified_adj.toarray()))[0]
+
+    return edge_index_modifed
 
 
 def train_epoch():
@@ -107,8 +123,12 @@ if __name__ == '__main__':
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
         optimizer, T_0=10)
 
+    # Node embedding attack
+    perturbed_edges = generate_attack()
+    graph.edge_index = perturbed_edges
+
     wandb.init(
-        project="Joint Graph embedding development",
+        project="Joint Graph embedding Adversarial Attack",
         config={
             "Method": "Generative",
             "Dataset": "Planetoid and Amazon"
