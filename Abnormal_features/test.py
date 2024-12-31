@@ -11,7 +11,7 @@ import random
 from dotenv import load_dotenv
 
 
-def abnormal_feature(ratio=0.4):
+def abnormal_feature(ratio):
     g = torch.normal(0, 1, (1000, graph.x.size(1)))
     num_nodes_considered = int(ratio*1000)
     num_deactivated = 1000-num_nodes_considered
