@@ -10,13 +10,41 @@ from dotenv import load_dotenv
 
 
 @torch.no_grad()
-def test():
+def test(graph):
     _, probs = model(graph)
 
     acc, roc, f1 = classification_multiclass_metrics(
         probs[graph.test_mask], graph.y[graph.test_mask], dataset.num_classes)
 
     return acc.item(), roc.item(), f1.item()
+
+
+def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
+    res = list()
+    for e in range(1000):
+        split_function = T.RandomNodeSplit(
+            num_val=0.1, num_test=0.2)  # Split each time randomly
+        graph = split_function(graph)
+
+        acc, _, _ = test(graph)
+        res.append(acc)
+
+        if (e+1) % 10 == 0:
+            print(e, " runs completed!!!!")
+
+    res = torch.tensor(res)
+    u, s = torch.mean(res), torch.std(res)  # with degree of error
+
+    print("Mean Accuracy: ", u.item())
+    print("Std. Accuracy: ", s.item())
+
+
+def single_run():
+    acc, roc, f1 = test()
+
+    print("Accuracy: ", acc)
+    print("AUCROC: ", roc)
+    print("F1: ", f1)
 
 
 if __name__ == '__main__':
@@ -48,7 +76,4 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    acc, roc, f1 = test()
-    print("Accuracy: ", acc)
-    print("AUCROC: ", roc)
-    print("F1: ", f1)
+    run(graph)
