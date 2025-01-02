@@ -35,24 +35,13 @@ def test(graph):
 
 
 def run(graph, ratio):
-    res = list()
-    split = T.RandomNodeSplit(num_val=500, num_test=1000)
-    for e in range(10):
-        graph = split(graph)
-        x_cap = abnormal_feature(ratio)
-        graph.x[graph.test_mask] = x_cap
 
-        acc, _, _ = test(graph)
-        res.append(acc)
+    x_cap = abnormal_feature(ratio)
+    graph.x[graph.test_mask] = x_cap
 
-        if (e+1) % 10 == 0:
-            print(e+1, " runs completed!!!!")
+    acc, _, _ = test(graph)
 
-    res = torch.tensor(res)
-    u, s = torch.mean(res), torch.std(res)  # with degree of error
-
-    print("Mean Accuracy: ", u.item())
-    print("Std. Accuracy: ", s.item())
+    print("Accuracy: ", acc*100)
 
 
 if __name__ == '__main__':
