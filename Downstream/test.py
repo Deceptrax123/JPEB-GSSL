@@ -8,11 +8,9 @@ import torch
 import os
 from dotenv import load_dotenv
 
-# TODO: Run 1000 tests for each dataset on different random splits.
-
 
 @torch.no_grad()
-def test(graph):
+def test(graph):  # can be
     _, probs = model(graph)
 
     acc, roc, f1 = classification_multiclass_metrics(
@@ -21,12 +19,18 @@ def test(graph):
     return acc.item(), roc.item(), f1.item()
 
 
-def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
+def run(graph):  # Suggested owing to instability of citation networks
     res = list()
     for e in range(1000):
-        split_function = T.RandomNodeSplit(
-            num_val=0.1, num_test=0.2)  # Split each time randomly
-        graph = split_function(graph)
+        if inp_name in ['cora', 'pubmed']:
+            split_function = T.RandomNodeSplit(
+                num_val=500, num_test=1000)
+            graph = split_function(graph)
+        else:
+            graph = split_function(graph)
+            split_function = T.RandomNodeSplit(
+                num_val=0.1, num_test=0.2)  # Split each time randomly
+            graph = split_function(graph)
 
         acc, _, _ = test(graph)
         res.append(acc)
@@ -41,8 +45,8 @@ def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
     print("Std. Accuracy: ", s.item())
 
 
-def single_run():
-    acc, roc, f1 = test()
+def single_run(graph):
+    acc, roc, f1 = test(graph)
 
     print("Accuracy: ", acc)
     print("AUCROC: ", roc)
@@ -63,12 +67,12 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_60.pt"
+        weights_path = os.getenv("cora_classification")+"model_80.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_classification")+"model_60.pt"
+        weights_path = os.getenv("pubmed_classification")+"model_80.pt"
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
@@ -77,9 +81,6 @@ if __name__ == '__main__':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
         weights_path = os.getenv("photo_classification")+"model_65.pt"
-
-    # split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    # graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)

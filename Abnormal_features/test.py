@@ -21,17 +21,38 @@ def abnormal_feature(ratio):
     mask_tensor = torch.tensor(mask)
     random_noise_matrix = mask_tensor.unsqueeze(1)*g
 
-    return torch.mul(graph.x[graph.test_mask], random_noise_matrix)
+    return torch.add(graph.x[graph.test_mask], random_noise_matrix)
 
 
 @torch.no_grad()
-def test():
+def test(graph):
     _, probs = model(graph)
 
     acc, roc, f1 = classification_multiclass_metrics(
         probs[graph.test_mask], graph.y[graph.test_mask], dataset.num_classes)
 
     return acc.item(), roc.item(), f1.item()
+
+
+def run(graph, ratio):
+    res = list()
+    split = T.RandomNodeSplit(num_val=500, num_test=1000)
+    for e in range(10):
+        graph = split(graph)
+        x_cap = abnormal_feature(ratio)
+        graph.x[graph.test_mask] = x_cap
+
+        acc, _, _ = test(graph)
+        res.append(acc)
+
+        if (e+1) % 10 == 0:
+            print(e+1, " runs completed!!!!")
+
+    res = torch.tensor(res)
+    u, s = torch.mean(res), torch.std(res)  # with degree of error
+
+    print("Mean Accuracy: ", u.item())
+    print("Std. Accuracy: ", s.item())
 
 
 if __name__ == '__main__':
@@ -47,7 +68,7 @@ if __name__ == '__main__':
     ratio = eval(input('Enter ratio of test nodes to be distorted: '))
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_80.pt"
+        weights_path = os.getenv("cora_classification")+"model_50.pt"
         graph = dataset[0]
         model = NodeClassifier(features=graph.x.size(1),
                                num_classes=dataset.num_classes)
@@ -60,7 +81,7 @@ if __name__ == '__main__':
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_85.pt"
+        weights_path = os.getenv("citeseer_classification")+"model_200.pt"
         model = NodeClassifierLight(features=graph.x.size(1),
                                     num_classes=dataset.num_classes)
 
@@ -69,10 +90,4 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    x_cap = abnormal_feature(ratio)
-    graph.x[graph.test_mask] = x_cap
-
-    acc, roc, f1 = test()
-    print("Accuracy: ", acc)
-    print("AUCROC: ", roc)
-    print("F1: ", f1)
+    run(graph, ratio)

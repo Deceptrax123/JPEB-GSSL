@@ -19,18 +19,24 @@ def test(graph):
     return acc.item(), roc.item(), f1.item()
 
 
-def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
+def run(graph, inp_name):  # Suggested owing to instability of citation networks
     res = list()
     for e in range(1000):
-        split_function = T.RandomNodeSplit(
-            num_val=0.1, num_test=0.2)  # Split each time randomly
-        graph = split_function(graph)
+        if inp_name == 'citeseer':
+            split_function = T.RandomNodeSplit(
+                num_val=500, num_test=1000)
+            graph = split_function(graph)
+        else:
+            graph = split_function(graph)
+            split_function = T.RandomNodeSplit(
+                num_val=0.1, num_test=0.2)  # Split each time randomly
+            graph = split_function(graph)
 
         acc, _, _ = test(graph)
         res.append(acc)
 
         if (e+1) % 10 == 0:
-            print(e, " runs completed!!!!")
+            print(e+1, " runs completed!!!!")
 
     res = torch.tensor(res)
     u, s = torch.mean(res), torch.std(res)  # with degree of error
@@ -59,14 +65,11 @@ if __name__ == '__main__':
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_85.pt"
+        weights_path = os.getenv("citeseer_classification")+"model_200.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
         weights_path = os.getenv('CS_classification')+"model_350.pt"
-
-    # split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
-    # graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
@@ -76,4 +79,4 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    run(graph)
+    run(graph, inp_name)

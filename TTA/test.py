@@ -2,7 +2,7 @@ from model import NodeClassifier
 from model_light import NodeClassifierLight
 from metrics import classification_multiclass_metrics
 from torch_geometric.utils import dropout_node
-from torch_geometric.datasets import Amazon, Coauthor
+from torch_geometric.datasets import Amazon, Coauthor, Planetoid
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -12,19 +12,12 @@ import random
 from dotenv import load_dotenv
 
 
-def abnormal_feature(edge_index):
-
-    changed_edges, _, node_mask = dropout_node(edge_index, p=0.1)
-
-    return changed_edges, node_mask
-
-
 @torch.no_grad()
 def test():
     _, probs = model(graph)
 
     acc, roc, f1 = classification_multiclass_metrics(
-        probs, graph.y, dataset.num_classes)
+        probs[graph.ood_test_mask], graph.y[graph.ood_test_mask], dataset.num_classes)
 
     return acc.item(), roc.item(), f1.item()
 
@@ -42,7 +35,27 @@ if __name__ == '__main__':
     photos_path = os.getenv('Photo')
     cs_path = os.getenv('CS')
 
-    if inp_name == 'computers':
+    prop_name = input("Enter Property: ")
+
+    if inp_name == 'cora':
+        dataset = Planetoid(root=cora_path, name='Cora')
+        weights_path = os.getenv("cora_classification")+"model_50.pt"
+        graph = dataset[0]
+        model = NodeClassifier(features=graph.x.size(1),
+                               num_classes=dataset.num_classes)
+    elif inp_name == 'pubmed':
+        dataset = Planetoid(root=pubmed_path, name='PubMed')
+        graph = dataset[0]
+        model = NodeClassifier(features=graph.x.size(1),
+                               num_classes=dataset.num_classes)
+        weights_path = os.getenv("pubmed_classification")+"model_75.pt"
+    elif inp_name == 'citeseer':
+        dataset = Planetoid(root=citeseer_path, name='CiteSeer')
+        graph = dataset[0]
+        weights_path = os.getenv("citeseer_classification")+"model_200.pt"
+        model = NodeClassifierLight(features=graph.x.size(1),
+                                    num_classes=dataset.num_classes)
+    elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
         weights_path = os.getenv("computer_classification")+"model_70.pt"
@@ -66,9 +79,10 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    edges, node_mask = abnormal_feature(graph.edge_index)
-    graph.x = node_mask.unsqueeze(1)*graph.x
-    graph.edge_index = edges
+    # Transform
+    ratios = [0.2, 0.2, 0.3, 0.2, 0.1]
+    transform = T.NodePropertySplit(prop_name, ratios)
+    graph = transform(graph)
 
     acc, roc, f1 = test()
     print("Accuracy: ", acc)

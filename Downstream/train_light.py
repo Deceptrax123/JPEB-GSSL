@@ -95,8 +95,8 @@ if __name__ == '__main__':
         graph = dataset[0]
         weights_path = os.getenv("CS_encoder")+"model_85.pt"
 
-    # split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
-    # graph = split_function(graph)
+    split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
+    graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)

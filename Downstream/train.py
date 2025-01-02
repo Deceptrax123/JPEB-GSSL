@@ -72,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "pubmed_classification")+f"model_{epoch+1}.pt"
+                    "cora_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -105,13 +105,13 @@ if __name__ == '__main__':
         graph = dataset[0]
         weights_path = os.getenv("photo_encoder")+"model_265.pt"
 
-    # split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    # graph = split_function(graph)
+    split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
+    graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
     model.encoder.load_state_dict(torch.load(
-        weights_path, weights_only=True), strict=True)
+        weights_path, weights_only=True), strict=False)
     init_weights(model.classifier)
 
     objective_function = nn.CrossEntropyLoss()
