@@ -41,8 +41,8 @@ def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
     print("Std. Accuracy: ", s.item())
 
 
-def single_run():
-    acc, roc, f1 = test()
+def single_run(graph):
+    acc, roc, f1 = test(graph)
 
     print("Accuracy: ", acc)
     print("AUCROC: ", roc)
@@ -63,7 +63,8 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_60.pt"
+        weights_path = os.getenv("cora_classification")+"model_500.pt"
+        encoder_path = os.getenv('cora_encoder')+"model_140.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
@@ -85,8 +86,10 @@ if __name__ == '__main__':
                            num_classes=dataset.num_classes)
 
     # Add weights path here
-    model.load_state_dict(torch.load(
+    model.encoder.load_state_dict(torch.load(
+        encoder_path, weights_only=True), strict=True)
+    model.classifier.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    run(graph)
+    single_run(graph)

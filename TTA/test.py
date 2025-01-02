@@ -2,7 +2,7 @@ from model import NodeClassifier
 from model_light import NodeClassifierLight
 from metrics import classification_multiclass_metrics
 from torch_geometric.utils import dropout_node
-from torch_geometric.datasets import Planetoid, Amazon, Coauthor
+from torch_geometric.datasets import Amazon, Coauthor
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -42,25 +42,7 @@ if __name__ == '__main__':
     photos_path = os.getenv('Photo')
     cs_path = os.getenv('CS')
 
-    if inp_name == 'cora':
-        dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_80.pt"
-        graph = dataset[0]
-        model = NodeClassifier(features=graph.x.size(1),
-                               num_classes=dataset.num_classes)
-    elif inp_name == 'pubmed':
-        dataset = Planetoid(root=pubmed_path, name='PubMed')
-        graph = dataset[0]
-        model = NodeClassifier(features=graph.x.size(1),
-                               num_classes=dataset.num_classes)
-        weights_path = os.getenv("pubmed_classification")+"model_75.pt"
-    elif inp_name == 'citeseer':
-        dataset = Planetoid(root=citeseer_path, name='CiteSeer')
-        graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_85.pt"
-        model = NodeClassifierLight(features=graph.x.size(1),
-                                    num_classes=dataset.num_classes)
-    elif inp_name == 'computers':
+    if inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
         weights_path = os.getenv("computer_classification")+"model_70.pt"

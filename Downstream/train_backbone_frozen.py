@@ -1,3 +1,4 @@
+
 from torch_geometric.graphgym import init_weights
 from model import NodeClassifier
 from metrics import classification_multiclass_metrics, classification_binary_metrics
@@ -14,7 +15,7 @@ from dotenv import load_dotenv
 
 
 def train_epoch():
-    model.classifier.zero_grad()
+    model.zero_grad()
 
     logits, probs = model(graph)
     loss = objective_function(
@@ -74,7 +75,7 @@ def training_loop():
                 save_path = os.getenv(
                     "pubmed_classification")+f"model_{epoch+1}.pt"
 
-                torch.save(model.classifier.state_dict(), save_path)
+                torch.save(model.state_dict(), save_path)
 
 
 if __name__ == '__main__':
@@ -114,10 +115,12 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     init_weights(model.classifier)
 
+    for param in model.encoder.parameters():
+        param.requires_grad = False
+
     objective_function = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(
-        # Update parameters of only classifier head
-        params=model.classifier.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
+        params=model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
     #     optimizer, T_0=10)
 

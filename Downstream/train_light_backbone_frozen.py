@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 
 def train_epoch():
-    model.classifier.zero_grad()
+    model.zero_grad()
 
     logits, probs = model(graph)
     loss = objective_function(
@@ -72,9 +72,9 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "citeseer_classification")+f"model_{epoch+1}.pt"
+                    "CS_classification")+f"model_{epoch+1}.pt"
 
-                torch.save(model.classifier.state_dict(), save_path)
+                torch.save(model.state_dict(), save_path)
 
 
 if __name__ == '__main__':
@@ -95,8 +95,8 @@ if __name__ == '__main__':
         graph = dataset[0]
         weights_path = os.getenv("CS_encoder")+"model_85.pt"
 
-    # split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
-    # graph = split_function(graph)
+    split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+    graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
@@ -104,9 +104,12 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     init_weights(model.classifier)
 
+    for param in model.encoder.parameters():
+        param.requires_grad = False
+
     objective_function = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(
-        params=model.classifier.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
+        params=model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
     #     optimizer, T_0=10)
 
