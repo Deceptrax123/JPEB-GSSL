@@ -66,8 +66,6 @@ if __name__ == '__main__':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
         weights_path = os.getenv("pubmed_encoder")+"model_130.pt"
-    elif inp_name == 'citeseer':
-        weights_path = os.getenv("citeseer_encoder")+"model_140.pt"
     elif inp_name == 'computers':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0',
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
