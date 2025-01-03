@@ -13,13 +13,28 @@ from dotenv import load_dotenv
 
 
 @torch.no_grad()
-def test():
+def test(graph):
     _, probs = model(graph)
 
     acc, roc, f1 = classification_multiclass_metrics(
         probs[graph.ood_test_mask], graph.y[graph.ood_test_mask], dataset.num_classes)
 
     return acc.item(), roc.item(), f1.item()
+
+
+def run(graph):
+    ratios = [0.2, 0.2, 0.3, 0.2, 0.1]
+    transform = T.NodePropertySplit(prop_name, ratios)
+    res = list()
+    for e in range(10):
+        graph = transform(graph)
+        acc, _, _ = test(graph)
+
+        res.append(acc)
+
+    res = torch.tensor(res)
+    print("Mean Accracy: ", torch.mean(res).item()*100)
+    print("Std Accuracy: ", torch.std(res).item()*100)
 
 
 if __name__ == '__main__':
@@ -48,7 +63,7 @@ if __name__ == '__main__':
         graph = dataset[0]
         model = NodeClassifier(features=graph.x.size(1),
                                num_classes=dataset.num_classes)
-        weights_path = os.getenv("pubmed_classification")+"model_75.pt"
+        weights_path = os.getenv("pubmed_classification")+"model_80.pt"
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
@@ -79,12 +94,4 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    # Transform
-    ratios = [0.2, 0.2, 0.3, 0.2, 0.1]
-    transform = T.NodePropertySplit(prop_name, ratios)
-    graph = transform(graph)
-
-    acc, roc, f1 = test()
-    print("Accuracy: ", acc)
-    print("AUCROC: ", roc)
-    print("F1: ", f1)
+    run(graph)
