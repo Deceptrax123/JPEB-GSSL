@@ -72,7 +72,7 @@ def training_loop():
 
             if (epoch+1) % 5 == 0:
                 save_path = os.getenv(
-                    "cora_classification")+f"model_{epoch+1}.pt"
+                    "pubmed_classification")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 

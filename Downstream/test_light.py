@@ -27,7 +27,6 @@ def run(graph, inp_name):  # Suggested owing to instability of citation networks
                 num_val=500, num_test=1000)
             graph = split_function(graph)
         else:
-            graph = split_function(graph)
             split_function = T.RandomNodeSplit(
                 num_val=0.1, num_test=0.2)  # Split each time randomly
             graph = split_function(graph)
