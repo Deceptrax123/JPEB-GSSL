@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 @torch.no_grad()
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
-    projected_2d = tsne_transform.fit_transform(z)
+    projected_2d = tsne_transform.fit_transform(z[graph.test_mask])
 
     x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
     y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
@@ -31,8 +31,6 @@ def cluster():
     z_kmeans = kmeans_transform.predict(
         np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
 
-    cmap_light = ListedColormap(
-        ['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0', '#E6E6FA', '#F08080', '#FFDAB9'])
     plt.figure(figsize=(8, 6))
     plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 
@@ -57,7 +55,7 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         cmap_light = ListedColormap(
-            ['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0', '#E6E6FA', '#F08080', '#FFDAB9'])
+            ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#E0FFFF", "#D8BFD8"])
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
         weights_path = os.getenv("cora_encoder")+"model_140.pt"
@@ -83,8 +81,11 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
 
+    split = T.RandomNodeSplit(num_test=0.2, num_val=0.1)
+    graph = split(graph)
+
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=30)
+        n_components=2, learning_rate='auto', init='random', perplexity=40)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes)
 
     cluster()

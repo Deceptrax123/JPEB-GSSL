@@ -2,6 +2,7 @@ from torch_geometric.graphgym import init_weights
 from model import ContextEncoderLite
 from torch_geometric.datasets import Planetoid, Amazon
 from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
@@ -31,8 +32,6 @@ def cluster():
     z_kmeans = kmeans_transform.predict(
         np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
 
-    cmap_light = ListedColormap(
-        ['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0', '#E6E6FA', '#F08080', '#FFDAB9'])
     plt.figure(figsize=(8, 6))
     plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 
@@ -57,7 +56,7 @@ if __name__ == '__main__':
 
     if inp_name == 'citeseer':
         cmap_light = ListedColormap(
-            ['#ADD8E6', '#FFB6C1', '#FFFFE0', '#E6E6FA', '#F08080', '#FFDAB9'])
+            ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#D8BFD8"])
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
         weights_path = os.getenv("citeseer_encoder")+"model_500.pt"
@@ -66,8 +65,11 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
 
+    split = T.RandomNodeSplit(num_test=0.2, num_val=0.1)
+    graph = split(graph)
+
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=45)
+        n_components=2, learning_rate='auto', init='random', perplexity=40)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, init='random')
 
     cluster()
