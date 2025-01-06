@@ -1,4 +1,3 @@
-from torch_geometric.graphgym import init_weights
 from model import ContextEncoder
 from torch_geometric.datasets import Planetoid, Amazon
 from sklearn.manifold import TSNE
@@ -11,8 +10,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import os
-import wandb
-import gc
 from dotenv import load_dotenv
 
 
@@ -32,12 +29,11 @@ def cluster():
         np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
 
     plt.figure(figsize=(8, 6))
-    plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
+    # plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 
     plt.scatter(projected_2d[:, 0], projected_2d[:, 1],
                 c=kmeans_transform.labels_, s=50, edgecolor='k', cmap='viridis')
 
-    plt.title('Clustering Boundaries of Node Embeddings')
     plt.show()
 
 
@@ -81,7 +77,7 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
 
-    split = T.RandomNodeSplit(num_test=0.2, num_val=0.1)
+    split = T.RandomNodeSplit(num_test=0.05, num_val=0.1)
     graph = split(graph)
 
     tsne_transform = TSNE(
