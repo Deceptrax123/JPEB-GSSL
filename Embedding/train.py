@@ -24,7 +24,7 @@ def train_epoch():
     embedding_model.zero_grad()
     for i in range(num_targets):
         target_embedding = target_encoder(graph)
-        _, _, node_mask = dropout_node(graph.edge_index)
+        _, _, node_mask = dropout_node(graph.edge_index, p=0.01)
 
         # Mask based features
         target_features = node_mask.unsqueeze(1)*target_embedding

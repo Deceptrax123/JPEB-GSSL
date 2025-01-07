@@ -15,7 +15,8 @@ class EmbeddingModel(Module):
 
     def forward(self, G):
         # Consider a context subgraph
-        edge_index, _, _ = dropout_node(G.edge_index)  # Bernoulli Distribution
+        edge_index, _, _ = dropout_node(
+            G.edge_index, p=0.05)  # Bernoulli Distribution
         x = self.context_model(G.x, edge_index)
 
         e_u = []

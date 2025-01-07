@@ -23,7 +23,7 @@ def train_epoch():
     embedding_model.zero_grad()
     for i in range(num_targets):
         target_embedding = target_encoder(graph)
-        _, _, node_mask = dropout_node(graph.edge_index)
+        _, _, node_mask = dropout_node(graph.edge_index, p=0.01)
 
         # Mask based features
         target_features = node_mask.unsqueeze(1)*target_embedding
@@ -62,7 +62,7 @@ def training_loop():
         print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 5 == 0:
+        if (epoch+1) % 100 == 0:
             save_encoder_weights = os.getenv(
                 "citeseer_encoder")+f"model_{epoch+1}.pt"
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(
         params=embedding_model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=10)
+        optimizer, T_0=30)
 
     wandb.init(
         project="Joint Graph embedding development",
