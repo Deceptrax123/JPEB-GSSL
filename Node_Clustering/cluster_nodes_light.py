@@ -58,12 +58,13 @@ if __name__ == '__main__':
     model = ContextEncoderLite(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
+    model.eval()
 
     split = T.RandomNodeSplit(num_test=0.07, num_val=0.1)
     graph = split(graph)
 
     tsne_transform = TSNE(
         n_components=2, learning_rate='auto', init='random', perplexity=40)
-    kmeans_transform = KMeans(n_clusters=dataset.num_classes, init='random')
+    kmeans_transform = KMeans(n_clusters=dataset.num_classes, init='k-means++')
 
     cluster()

@@ -42,6 +42,16 @@ def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
 
 
 def single_run(graph):
+    if inp_name in ['cora', 'pubmed']:
+        split_function = T.RandomNodeSplit(
+            num_val=500, num_test=1000)
+        graph = split_function(graph)
+    else:
+        graph = split_function(graph)
+        split_function = T.RandomNodeSplit(
+            num_val=0.1, num_test=0.2)  # Split each time randomly
+        graph = split_function(graph)
+
     acc, roc, f1 = test(graph)
 
     print("Accuracy: ", acc)
@@ -63,33 +73,28 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_500.pt"
+        weights_path = os.getenv("cora_frozen")+"model_500.pt"
         encoder_path = os.getenv('cora_encoder')+"model_140.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_classification")+"model_60.pt"
+        weights_path = os.getenv("pubmed_frozen")+"model_60.pt"
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_classification")+"model_70.pt"
+        weights_path = os.getenv("computer_frozen")+"model_70.pt"
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
-        weights_path = os.getenv("photo_classification")+"model_65.pt"
-
-    # split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    # graph = split_function(graph)
+        weights_path = os.getenv("photo_frozen")+"model_65.pt"
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
 
     # Add weights path here
-    model.encoder.load_state_dict(torch.load(
+    model.load_state_dict(torch.load(
         encoder_path, weights_only=True), strict=True)
-    model.classifier.load_state_dict(torch.load(
-        weights_path, weights_only=True), strict=True)
     model.eval()
 
     single_run(graph)

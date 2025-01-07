@@ -2,6 +2,7 @@ from model import ContextEncoder
 from torch_geometric.datasets import Planetoid, Amazon
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
+from sklearn.metrics import normalized_mutual_info_score, v_measure_score
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from matplotlib.colors import ListedColormap
@@ -16,7 +17,7 @@ from dotenv import load_dotenv
 @torch.no_grad()
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
-    projected_2d = tsne_transform.fit_transform(z[graph.test_mask])
+    projected_2d = tsne_transform.fit_transform(z)
 
     x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
     y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
@@ -76,12 +77,12 @@ if __name__ == '__main__':
     model = ContextEncoder(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
-
+    model.eval()
     split = T.RandomNodeSplit(num_test=0.05, num_val=0.1)
     graph = split(graph)
 
     tsne_transform = TSNE(
         n_components=2, learning_rate='auto', init='random', perplexity=40)
-    kmeans_transform = KMeans(n_clusters=dataset.num_classes)
+    kmeans_transform = KMeans(n_clusters=5)
 
     cluster()

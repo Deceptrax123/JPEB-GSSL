@@ -45,6 +45,15 @@ def run(graph, inp_name):  # Suggested owing to instability of citation networks
 
 
 def single_run(graph):
+
+    if inp_name == 'citeseer':
+        split_function = T.RandomNodeSplit(
+            num_val=500, num_test=1000)
+        graph = split_function(graph)
+    else:
+        split_function = T.RandomNodeSplit(
+            num_val=0.1, num_test=0.2)  # Split each time randomly
+        graph = split_function(graph)
     acc, roc, f1 = test(graph)
 
     print("Accuracy: ", acc)
@@ -64,11 +73,11 @@ if __name__ == '__main__':
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_200.pt"
+        weights_path = os.getenv("citeseer_frozen")+"model_200.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
-        weights_path = os.getenv('CS_classification')+"model_350.pt"
+        weights_path = os.getenv('CS_frozen')+"model_350.pt"
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)

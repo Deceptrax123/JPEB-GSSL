@@ -13,6 +13,11 @@ import gc
 from dotenv import load_dotenv
 
 
+def gradual_unfreeze():
+    for param in model.encoder.parameters():
+        param.requires_grad = True
+
+
 def train_epoch():
     model.zero_grad()
 
@@ -70,11 +75,16 @@ def training_loop():
                 "Test F1": test_f1
             })
 
-            if (epoch+1) % 5 == 0:
+            if (epoch+1) % 1000 == 0:
                 save_path = os.getenv(
-                    "CS_classification")+f"model_{epoch+1}.pt"
+                    "cora_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
+
+            if (epoch+1) == 20000:
+                gradual_unfreeze()
+
+            scheduler.step()
 
 
 if __name__ == '__main__':
@@ -90,13 +100,16 @@ if __name__ == '__main__':
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
         weights_path = os.getenv("citeseer_encoder")+"model_500.pt"
+
+        split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
+        graph = split_function(graph)
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
         weights_path = os.getenv("CS_encoder")+"model_85.pt"
 
-    split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
-    graph = split_function(graph)
+        split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+        graph = split_function(graph)
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
@@ -105,13 +118,14 @@ if __name__ == '__main__':
     init_weights(model.classifier)
 
     for param in model.encoder.parameters():
+        # freeze the backbone
         param.requires_grad = False
 
     objective_function = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(
         params=model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
-    # scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-    #     optimizer, T_0=10)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+        optimizer, T_0=100)
 
     wandb.init(
         project="Joint Graph embedding downstream tests",

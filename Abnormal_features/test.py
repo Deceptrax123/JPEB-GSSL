@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 
 def abnormal_feature(ratio):
-    g = torch.normal(0, 1, (1000, graph.x.size(1)))
+    g = torch.normal(mean=0, std=1, size=(1000, graph.x.size(1)))
     num_nodes_considered = int(ratio*1000)
     num_deactivated = 1000-num_nodes_considered
 
@@ -21,7 +21,9 @@ def abnormal_feature(ratio):
     mask_tensor = torch.tensor(mask)
     random_noise_matrix = mask_tensor.unsqueeze(1)*g
 
-    return torch.add(graph.x[graph.test_mask], random_noise_matrix)
+    graph.x[graph.test_mask] = random_noise_matrix
+
+    return graph.x
 
 
 @torch.no_grad()
@@ -36,8 +38,7 @@ def test(graph):
 
 def run(graph, ratio):
 
-    x_cap = abnormal_feature(ratio)
-    graph.x[graph.test_mask] = x_cap
+    graph.x = abnormal_feature(ratio)
 
     acc, _, _ = test(graph)
 

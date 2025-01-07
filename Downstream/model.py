@@ -1,5 +1,5 @@
 from torch.nn import Module
-from torch_geometric.nn import ChebConv, GCNConv
+from torch_geometric.nn import ChebConv, GCNConv, Linear
 import torch.nn.functional as F
 
 
@@ -28,12 +28,12 @@ class NodeClassifier(Module):
         super(NodeClassifier, self).__init__()
 
         self.encoder = ContextEncoder(in_features=features)
-        self.classifier = GCNConv(
-            in_channels=4*features, out_channels=num_classes)
+        self.classifier = Linear(
+            in_channels=4*features, out_channels=num_classes)  # can be a GCN layer too
 
     def forward(self, graph):
         x, edge_index = graph.x, graph.edge_index
         x = self.encoder(x, edge_index)
-        x = self.classifier(x, edge_index)
+        x = self.classifier(x)
 
         return x, F.softmax(x, dim=1)
