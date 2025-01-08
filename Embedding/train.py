@@ -1,7 +1,6 @@
 from torch_geometric.utils import dropout_node
-from Model.model import EmbeddingModel
-from Model.target_encoder import TargetEncoder
-from torch_geometric.data.datapipes import functional_transform
+from Model_light.model import EmbeddingModel
+from Model_light.target_encoder import TargetEncoder
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from target_update import ema_target_weights
@@ -62,9 +61,9 @@ def training_loop():
         print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 5 == 0:
+        if (epoch+1) % 50 == 0:
             save_encoder_weights = os.getenv(
-                "CS_encoder")+f"model_{epoch+1}.pt"
+                "pubmed_encoder")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)

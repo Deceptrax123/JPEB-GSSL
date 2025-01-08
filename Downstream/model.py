@@ -28,7 +28,7 @@ class NodeClassifier(Module):
         super(NodeClassifier, self).__init__()
 
         self.encoder = ContextEncoder(in_features=features)
-        self.classifier = Linear(
+        self.classifier = GCNConv(
             in_channels=4*features, out_channels=num_classes)  # can be a GCN layer too
 
     def forward(self, graph):

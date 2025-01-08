@@ -13,11 +13,6 @@ import gc
 from dotenv import load_dotenv
 
 
-def gradual_unfreeze():
-    for param in model.encoder.parameters():
-        param.requires_grad = True
-
-
 def train_epoch():
     model.zero_grad()
 
@@ -47,7 +42,7 @@ def val_epoch():
 
 
 def training_loop():
-    for epoch in range(EPOCHS):
+    for epoch in range(20000, EPOCHS):
         model.train()
         train_loss, train_acc, train_roc, train_f1 = train_epoch()
 
@@ -81,9 +76,6 @@ def training_loop():
 
                 torch.save(model.state_dict(), save_path)
 
-            if (epoch+1) == 20000:
-                gradual_unfreeze()
-
             scheduler.step()
 
 
@@ -113,9 +105,13 @@ if __name__ == '__main__':
 
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
-    model.encoder.load_state_dict(torch.load(
-        weights_path, weights_only=True), strict=True)
-    init_weights(model.classifier)
+    # model.encoder.load_state_dict(torch.load(
+    #     weights_path, weights_only=True), strict=True)
+    # init_weights(model.classifier)
+
+    restart_ckpt = os.getenv('cora_frozen')+"model_20000.pt"
+    model.load_state_dict(torch.load(
+        restart_ckpt, weights_only=True), strict=True)
 
     for param in model.encoder.parameters():
         # freeze the backbone

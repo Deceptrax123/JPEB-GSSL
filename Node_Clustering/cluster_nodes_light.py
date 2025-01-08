@@ -1,7 +1,9 @@
 from model import ContextEncoderLite
 from torch_geometric.datasets import Planetoid
 from sklearn.manifold import TSNE
+from sklearn.metrics.cluster import normalized_mutual_info_score
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from matplotlib.colors import ListedColormap
@@ -13,10 +15,18 @@ import os
 from dotenv import load_dotenv
 
 
+def nmi(z, y_true):
+    y_pred = kmeans_transform.fit_predict(z)
+
+    score = normalized_mutual_info_score(y_true, y_pred)
+    print(score)
+
+
 @torch.no_grad()
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
     projected_2d = tsne_transform.fit_transform(z[graph.test_mask])
+    # projected_2d = pca_transform.fit_transform(z[graph.test_mask])
 
     x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
     y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
@@ -53,18 +63,20 @@ if __name__ == '__main__':
             ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#D8BFD8"])
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_encoder")+"model_500.pt"
+        weights_path = os.getenv("citeseer_encoder")+"model_7200.pt"
 
     model = ContextEncoderLite(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    split = T.RandomNodeSplit(num_test=0.07, num_val=0.1)
+    split = T.RandomNodeSplit(num_test=1000, num_val=500)
     graph = split(graph)
 
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=40)
+        n_components=2, learning_rate='auto', init='random', perplexity=5)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, init='k-means++')
+
+    pca_transform = PCA(n_components=2)
 
     cluster()

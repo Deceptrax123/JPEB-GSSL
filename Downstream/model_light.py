@@ -28,13 +28,13 @@ class NodeClassifier(Module):
         super(NodeClassifier, self).__init__()
 
         self.encoder = ContextEncoder(in_features=features)
-        self.classifier = Linear(
+        self.classifier = GCNConv(
             # Can be a graph convolution layer too.
             in_channels=1000, out_channels=num_classes)
 
     def forward(self, graph):
         x, edge_index = graph.x, graph.edge_index
         x = self.encoder(x, edge_index)
-        x = self.classifier(x)
+        x = self.classifier(x, edge_index)
 
         return x, F.softmax(x, dim=1)

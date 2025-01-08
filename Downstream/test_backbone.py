@@ -1,4 +1,4 @@
-from model import NodeClassifier
+from model_light import NodeClassifier
 from metrics import classification_multiclass_metrics
 from torch_geometric.datasets import Planetoid, Amazon
 import torch_geometric.transforms as T
@@ -23,11 +23,15 @@ def test(graph):
 
 def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
     res = list()
-    for e in range(1000):
-        split_function = T.RandomNodeSplit(
-            num_val=0.1, num_test=0.2)  # Split each time randomly
-        graph = split_function(graph)
-
+    for e in range(10):
+        if inp_name in ['cora', 'pubmed']:
+            split_function = T.RandomNodeSplit(
+                num_val=500, num_test=1000)
+            graph = split_function(graph)
+        else:
+            split_function = T.RandomNodeSplit(
+                num_val=0.1, num_test=0.2)  # Split each time randomly
+            graph = split_function(graph)
         acc, _, _ = test(graph)
         res.append(acc)
 
@@ -37,8 +41,8 @@ def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
     res = torch.tensor(res)
     u, s = torch.mean(res), torch.std(res)  # with degree of error
 
-    print("Mean Accuracy: ", u.item())
-    print("Std. Accuracy: ", s.item())
+    print("Mean Accuracy: ", u.item()*100)
+    print("Std. Accuracy: ", s.item()*100)
 
 
 def single_run(graph):
@@ -54,7 +58,7 @@ def single_run(graph):
 
     acc, roc, f1 = test(graph)
 
-    print("Accuracy: ", acc)
+    print("Accuracy: ", acc*100)
     print("AUCROC: ", roc)
     print("F1: ", f1)
 
@@ -73,8 +77,7 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_frozen")+"model_500.pt"
-        encoder_path = os.getenv('cora_encoder')+"model_140.pt"
+        weights_path = os.getenv("cora_frozen")+"model_3000.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
@@ -94,7 +97,7 @@ if __name__ == '__main__':
 
     # Add weights path here
     model.load_state_dict(torch.load(
-        encoder_path, weights_only=True), strict=True)
+        weights_path, weights_only=True), strict=True)
     model.eval()
 
-    single_run(graph)
+    run(graph)

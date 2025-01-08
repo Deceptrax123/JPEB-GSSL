@@ -70,11 +70,11 @@ def training_loop():
                 "Test F1": test_f1
             })
 
-            if (epoch+1) % 5 == 0:
-                save_path = os.getenv(
-                    "citeseer_classification")+f"model_{epoch+1}.pt"
+            # if (epoch+1) % 5 == 0:
+            #     save_path = os.getenv(
+            #         "citeseer_classification")+f"model_{epoch+1}.pt"
 
-                torch.save(model.state_dict(), save_path)
+            #     torch.save(model.state_dict(), save_path)
 
 
 if __name__ == '__main__':
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_encoder")+"model_500.pt"
+        weights_path = os.getenv("citeseer_encoder")+"model_250900.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]

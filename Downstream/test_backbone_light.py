@@ -73,7 +73,7 @@ if __name__ == '__main__':
     if inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_frozen")+"model_200.pt"
+        weights_path = os.getenv("citeseer_frozen")+"model_31000.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
@@ -87,4 +87,4 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     model.eval()
 
-    run(graph, inp_name)
+    single_run(graph)

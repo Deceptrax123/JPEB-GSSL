@@ -1,7 +1,7 @@
 
 from torch_geometric.graphgym import init_weights
-from model import NodeClassifier
-from metrics import classification_multiclass_metrics, classification_binary_metrics
+from model_light import NodeClassifier
+from metrics import classification_multiclass_metrics
 from torch_geometric.datasets import Planetoid, Amazon
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 import torch_geometric.transforms as T
@@ -76,14 +76,14 @@ def training_loop():
                 "Test F1": test_f1
             })
 
-            if (epoch+1) % 10000 == 0:
+            if (epoch+1) % 50 == 0:
                 save_path = os.getenv(
                     "pubmed_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
-            if (epoch+1) == 20000:
-                gradual_unfreeze()
+            # if (epoch+1) == 20000:
+            #     gradual_unfreeze()
 
             scheduler.step()
 
@@ -102,14 +102,14 @@ if __name__ == '__main__':
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
-        weights_path = os.getenv("cora_encoder")+"model_140.pt"
+        weights_path = os.getenv("cora_encoder")+"model_25900.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder")+"model_130.pt"
+        weights_path = os.getenv("pubmed_encoder")+"model_400.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
