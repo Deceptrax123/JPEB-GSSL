@@ -1,4 +1,4 @@
-from model import ContextEncoderLite
+from model import ContextEncoderLite, ContextEncoder
 from torch_geometric.datasets import Planetoid, Amazon
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
@@ -57,7 +57,7 @@ if __name__ == '__main__':
             ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#E0FFFF", "#D8BFD8"])
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
-        weights_path = os.getenv("cora_encoder")+"model_25900.pt"
+        weights_path = os.getenv("cora_encoder_2")+"model_2200.pt"
     elif inp_name == 'pubmed':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90'])
         dataset = Planetoid(root=pubmed_path, name='PubMed')
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         graph = dataset[0]
         weights_path = os.getenv("photo_encoder")+"model_265.pt"
 
-    model = ContextEncoderLite(in_features=graph.x.size(1))
+    model = ContextEncoder(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     model.eval()
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     graph = split(graph)
 
     tsne_transform = TSNE(
-        n_components=2, learning_rate=2000, init='random', perplexity=30)
+        n_components=2, learning_rate='auto', init='random', perplexity=50)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, random_state=0)
 
     pca_transform = PCA(n_components=2)
