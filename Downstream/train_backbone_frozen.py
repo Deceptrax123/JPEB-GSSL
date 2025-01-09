@@ -78,7 +78,7 @@ def training_loop():
 
             if (epoch+1) % 50 == 0:
                 save_path = os.getenv(
-                    "pubmed_frozen")+f"model_{epoch+1}.pt"
+                    "cora_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -102,14 +102,14 @@ if __name__ == '__main__':
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
-        weights_path = os.getenv("cora_encoder")+"model_25900.pt"
+        weights_path = os.getenv("cora_encoder")+"model_10600.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder")+"model_400.pt"
+        weights_path = os.getenv("pubmed_encoder")+"model_5000.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)

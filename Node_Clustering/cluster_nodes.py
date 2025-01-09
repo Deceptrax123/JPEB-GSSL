@@ -18,24 +18,24 @@ from dotenv import load_dotenv
 @torch.no_grad()
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
-    # projected_2d = tsne_transform.fit_transform(z)
-    projected_2d = tsne_transform.fit_transform(z[graph.test_mask])
+    projected_2d = tsne_transform.fit_transform(z)
+    # projected_2d = pca_transform.fit_transform(z)
 
-    x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
-    y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
+    # x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
+    # y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
 
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
-                         np.arange(y_min, y_max, 0.02))
-    kmeans_transform.fit(projected_2d.astype('double'))
+    # xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+    #                      np.arange(y_min, y_max, 0.02))
+    # kmeans_transform.fit(projected_2d.astype('double'))
 
-    z_kmeans = kmeans_transform.predict(
-        np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
+    # z_kmeans = kmeans_transform.predict(
+    #     np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
 
     plt.figure(figsize=(8, 6))
-    plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
+    # plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 
     plt.scatter(projected_2d[:, 0], projected_2d[:, 1],
-                c=kmeans_transform.labels_, s=50, edgecolor='k', cmap='viridis')
+                c=list(graph.y.numpy()), s=50, edgecolor='k', cmap='viridis')
 
     plt.show()
 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90'])
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder")+"model_400.pt"
+        weights_path = os.getenv("pubmed_encoder")+"model_5000.pt"
     elif inp_name == 'computers':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0',
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     graph = split(graph)
 
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=5)
+        n_components=2, learning_rate=2000, init='random', perplexity=30)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, random_state=0)
 
     pca_transform = PCA(n_components=2)

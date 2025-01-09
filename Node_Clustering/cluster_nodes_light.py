@@ -25,24 +25,24 @@ def nmi(z, y_true):
 @torch.no_grad()
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
-    projected_2d = tsne_transform.fit_transform(z[graph.test_mask])
-    # projected_2d = pca_transform.fit_transform(z[graph.test_mask])
+    # projected_reduced = pca_transform.fit_transform(z)
+    projected_2d = pca_transform.fit_transform(z[graph.test_mask])
 
-    x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
-    y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
+    # x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
+    # y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
 
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
-                         np.arange(y_min, y_max, 0.02))
-    kmeans_transform.fit(projected_2d.astype('double'))
+    # xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+    #                      np.arange(y_min, y_max, 0.02))
+    # kmeans_transform.fit(projected_2d.astype('double'))
 
-    z_kmeans = kmeans_transform.predict(
-        np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
+    # z_kmeans = kmeans_transform.predict(
+    #     np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
 
     plt.figure(figsize=(8, 6))
     # plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 
     plt.scatter(projected_2d[:, 0], projected_2d[:, 1],
-                c=kmeans_transform.labels_, s=50, edgecolor='k', cmap='viridis')
+                c=list(graph.y[graph.test_mask].numpy()), s=50, edgecolor='k', cmap='viridis')
     plt.show()
 
 
@@ -63,7 +63,7 @@ if __name__ == '__main__':
             ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#D8BFD8"])
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_encoder")+"model_7200.pt"
+        weights_path = os.getenv("citeseer_encoder")+"model_2850.pt"
 
     model = ContextEncoderLite(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     graph = split(graph)
 
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=5)
+        n_components=2, learning_rate=300, init='random', perplexity=100)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, init='k-means++')
 
     pca_transform = PCA(n_components=2)

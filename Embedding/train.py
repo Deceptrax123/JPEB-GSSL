@@ -61,9 +61,9 @@ def training_loop():
         print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 50 == 0:
+        if (epoch+1) % 100 == 0:
             save_encoder_weights = os.getenv(
-                "pubmed_encoder")+f"model_{epoch+1}.pt"
+                "cora_encoder")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(
         params=embedding_model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=10)
+        optimizer, T_0=100)
 
     wandb.init(
         project="Joint Graph embedding development",

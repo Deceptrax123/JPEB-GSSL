@@ -70,7 +70,7 @@ def training_loop():
                 "Test F1": test_f1
             })
 
-            if (epoch+1) % 5 == 0:
+            if (epoch+1) % 50 == 0:
                 save_path = os.getenv(
                     "pubmed_classification")+f"model_{epoch+1}.pt"
 

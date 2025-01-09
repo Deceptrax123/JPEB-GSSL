@@ -62,7 +62,7 @@ def training_loop():
         print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 100 == 0:
+        if (epoch+1) % 50 == 0:
             save_encoder_weights = os.getenv(
                 "citeseer_encoder")+f"model_{epoch+1}.pt"
 
