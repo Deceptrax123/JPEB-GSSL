@@ -23,8 +23,8 @@ def test(graph):
 
 def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
     res = list()
-    for e in range(10):
-        if inp_name in ['cora', 'pubmed']:
+    for e in range(100):
+        if inp_name in ['cora', 'pubmed', 'citeseer']:
             split_function = T.RandomNodeSplit(
                 num_val=500, num_test=1000)
             graph = split_function(graph)
@@ -46,7 +46,7 @@ def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
 
 
 def single_run(graph):
-    if inp_name in ['cora', 'pubmed']:
+    if inp_name in ['cora', 'pubmed', 'citeseer']:
         split_function = T.RandomNodeSplit(
             num_val=500, num_test=1000)
         graph = split_function(graph)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_frozen")+"model_60.pt"
+        weights_path = os.getenv("pubmed_frozen")+"model_5150.pt"
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]

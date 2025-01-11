@@ -76,9 +76,9 @@ def training_loop():
                 "Test F1": test_f1
             })
 
-            if (epoch+1) % 50 == 0:
+            if (epoch+1) % 25 == 0:
                 save_path = os.getenv(
-                    "citeseer_frozen")+f"model_{epoch+1}.pt"
+                    "pubmed_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder_2")+"model_5000.pt"
+        weights_path = os.getenv("pubmed_encoder_2")+"model_2300.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
