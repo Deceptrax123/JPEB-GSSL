@@ -7,26 +7,18 @@ import torch
 
 
 class EmbeddingModel(Module):
-    def __init__(self, num_features, num_targets, num_nodes, k):
+    def __init__(self, num_features, num_targets):
         super(EmbeddingModel, self).__init__()
 
         self.context_model = ContextEncoder(in_features=num_features)
         self.predictor_model = ContextTargetPredictor(dims=512)
         self.num_targets = num_targets
-        self.num_nodes = num_nodes
-        self.k = k
 
     def forward(self, G):
         # Consider a context subgraph
-        # edge_index, _, _ = dropout_node(
-        #     G.edge_index, p=0.15)  # Bernoulli Distribution
-        # x = self.context_model(G.x, edge_index)
-        nodes_ids = torch.arange(0, self.num_nodes)
-        random_index = torch.randint(0, nodes_ids.numel(), (1,))
-
-        node_point = nodes_ids[random_index]
-        subset, edge_index, mapping, edge_mask = k_hop_subgraph(
-            node_point, self.k, G.edge_index)
+        edge_index, _, _ = dropout_node(
+            G.edge_index, p=0.3)  # Bernoulli Distribution
+        x = self.context_model(G.x, edge_index)
 
         x = self.context_model(G.x, edge_index)
         e_u = []
@@ -35,4 +27,4 @@ class EmbeddingModel(Module):
             v_graph = global_mean_pool(v, batch=G.batch)
             e_u.append(v_graph)
 
-        return e_u, subset
+        return e_u

@@ -62,7 +62,7 @@ if __name__ == '__main__':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90'])
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder")+"model_5000.pt"
+        weights_path = os.getenv("pubmed_encoder_2")+"model_500.pt"
     elif inp_name == 'computers':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0',
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])

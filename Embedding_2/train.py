@@ -1,16 +1,14 @@
-from torch_geometric.utils import dropout_node, k_hop_subgraph
+from torch_geometric.utils import dropout_node
 from torch_geometric.nn import global_mean_pool
 from Model.model import EmbeddingModel
 from Model.target_encoder import TargetEncoder
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
-import torch.nn.functional as F
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from target_update import ema_target_weights
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
 import torch
-import random
 import os
 import wandb
 import gc
@@ -19,19 +17,14 @@ from dotenv import load_dotenv
 
 def train_epoch():
     # View augmentations take place in the Embedding Class.
-    encoder_embeddings, subgraph_subset = embedding_model(graph)
+    encoder_embeddings = embedding_model(graph)
 
     # Generate Targets based on Bernoulli Distribution
     target_loss = 0
     embedding_model.zero_grad()
     for i in range(num_targets):
         target_embedding = target_encoder(graph)
-        # _, _, node_mask = dropout_node(graph.edge_index, p=0.1)
-        random_idx = random.choice(range(0, len(subgraph_subset)))
-        seed_point_target = subgraph_subset[random_idx]
-        subset, edge_index, mapping, edge_mask = k_hop_subgraph(
-            seed_point_target, k, graph.edge_index)
-        node_mask = torch.sum(F.one_hot(subset, graph.num_nodes), dim=1)
+        _, _, node_mask = dropout_node(graph.edge_index, p=0.1)
 
         # Mask based features
         target_features = node_mask.unsqueeze(1)*target_embedding
@@ -43,7 +36,7 @@ def train_epoch():
         target_loss += l2_loss(encoder_mask_features, subgraph_features)
 
         del target_embedding, target_features, node_mask, encoder_mask_features, subgraph_features
-    del encoder_embeddings, subgraph_subset
+    del encoder_embeddings
 
     loss = target_loss/num_targets
     loss.backward()
@@ -71,9 +64,9 @@ def training_loop():
         print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 50 == 0:
+        if (epoch+1) % 25 == 0:
             save_encoder_weights = os.getenv(
-                "citeseer_encoder_2")+f"model_{epoch+1}.pt"
+                "pubmed_encoder_2")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -109,17 +102,15 @@ if __name__ == '__main__':
         graph = Coauthor(root=cs_path, name="CS")[0]
 
     num_targets = 3
-    num_nodes = graph.num_nodes
-    k = 2
     embedding_model = EmbeddingModel(
-        num_features=graph.x.size(1), num_targets=num_targets, num_nodes=num_nodes, k=k)
+        num_features=graph.x.size(1), num_targets=num_targets)
     target_encoder = TargetEncoder(in_features=graph.x.size(1))
 
     l2_loss = nn.MSELoss()
     optimizer = torch.optim.Adam(
         params=embedding_model.parameters(), lr=LR, betas=BETAS, eps=EPSILON)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=100)
+        optimizer, T_0=75)
 
     wandb.init(
         project="Subgraph Embedding Development",

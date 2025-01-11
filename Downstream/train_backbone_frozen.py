@@ -1,6 +1,6 @@
 
 from torch_geometric.graphgym import init_weights
-from model_light import NodeClassifier
+from model import NodeClassifier
 from metrics import classification_multiclass_metrics
 from torch_geometric.datasets import Planetoid, Amazon
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
@@ -78,7 +78,7 @@ def training_loop():
 
             if (epoch+1) % 50 == 0:
                 save_path = os.getenv(
-                    "cora_frozen")+f"model_{epoch+1}.pt"
+                    "citeseer_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -98,18 +98,26 @@ if __name__ == '__main__':
     pubmed_path = os.getenv('Pubmed')
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
+    citeseer_path = os.getenv('CiteSeer')
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
-        weights_path = os.getenv("cora_encoder")+"model_10600.pt"
+        weights_path = os.getenv("cora_encoder_2")+"model_2500.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder")+"model_5000.pt"
+        weights_path = os.getenv("pubmed_encoder_2")+"model_5000.pt"
+
+        split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
+        graph = split_function(graph)
+    elif inp_name == 'citeseer':
+        dataset = Planetoid(root=citeseer_path, name='Citeseer')
+        graph = dataset[0]
+        weights_path = os.getenv("citeseer_encoder_2")+"model_50000.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)

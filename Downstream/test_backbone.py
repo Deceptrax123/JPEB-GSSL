@@ -1,4 +1,4 @@
-from model_light import NodeClassifier
+from model import NodeClassifier
 from metrics import classification_multiclass_metrics
 from torch_geometric.datasets import Planetoid, Amazon
 import torch_geometric.transforms as T
@@ -77,12 +77,16 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_frozen")+"model_3000.pt"
+        weights_path = os.getenv("cora_frozen")+"model_2000.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
         weights_path = os.getenv("pubmed_frozen")+"model_60.pt"
+    elif inp_name == 'citeseer':
+        dataset = Planetoid(root=citeseer_path, name='CiteSeer')
+        graph = dataset[0]
+        weights_path = os.getenv("citeseer_frozen")+"model_2000.pt"
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
