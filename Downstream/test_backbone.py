@@ -1,6 +1,6 @@
 from model import NodeClassifier
 from metrics import classification_multiclass_metrics
-from torch_geometric.datasets import Planetoid, Amazon
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -23,7 +23,7 @@ def test(graph):
 
 def run(graph):  # Suggested for Amazon Photos, Computers, Coauthor CS
     res = list()
-    for e in range(100):
+    for e in range(10):
         if inp_name in ['cora', 'pubmed', 'citeseer']:
             split_function = T.RandomNodeSplit(
                 num_val=500, num_test=1000)
@@ -74,6 +74,7 @@ if __name__ == '__main__':
     citeseer_path = os.getenv('CiteSeer')
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
+    cs_path = os.getenv("CS")
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
@@ -82,7 +83,7 @@ if __name__ == '__main__':
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_frozen")+"model_5150.pt"
+        weights_path = os.getenv("pubmed_frozen")+"model_600.pt"
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
@@ -95,7 +96,10 @@ if __name__ == '__main__':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
         weights_path = os.getenv("photo_frozen")+"model_65.pt"
-
+    elif inp_name == 'cs':
+        dataset = Coauthor(root=cs_path, name='CS')
+        graph = dataset[0]
+        weights_path = os.getenv('CS_frozen')+"model_6000.pt"
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
 

@@ -2,7 +2,7 @@
 from torch_geometric.graphgym import init_weights
 from model import NodeClassifier
 from metrics import classification_multiclass_metrics
-from torch_geometric.datasets import Planetoid, Amazon
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
@@ -78,7 +78,7 @@ def training_loop():
 
             if (epoch+1) % 25 == 0:
                 save_path = os.getenv(
-                    "pubmed_frozen")+f"model_{epoch+1}.pt"
+                    "CS_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -99,6 +99,7 @@ if __name__ == '__main__':
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
     citeseer_path = os.getenv('CiteSeer')
+    cs_path = os.getenv('CS')
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
@@ -132,6 +133,13 @@ if __name__ == '__main__':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
         weights_path = os.getenv("photo_encoder")+"model_265.pt"
+
+        split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+        graph = split_function(graph)
+    elif inp_name == 'cs':
+        dataset = Coauthor(root=cs_path, name='CS')
+        graph = dataset[0]
+        weights_path = os.getenv("CS_encoder_2")+"model_1425.pt"
 
         split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
         graph = split_function(graph)
