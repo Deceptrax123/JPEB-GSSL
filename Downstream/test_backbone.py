@@ -91,11 +91,11 @@ if __name__ == '__main__':
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_frozen")+"model_70.pt"
+        weights_path = os.getenv("computer_frozen")+"model_5000.pt"
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
-        weights_path = os.getenv("photo_frozen")+"model_65.pt"
+        weights_path = os.getenv("photo_frozen")+"model_3425.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]

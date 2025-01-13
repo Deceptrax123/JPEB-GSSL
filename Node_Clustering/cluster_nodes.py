@@ -20,7 +20,7 @@ def eval_kmeans(graph):
     nmi_score = 0
     ari_score = 0
     for k in range(1, 11):
-        split = T.RandomNodeSplit(num_test=1000, num_val=500)
+        split = T.RandomNodeSplit(num_test=0.2, num_val=0.1)
         graph = split(graph)
         z = model(graph.x, graph.edge_index).numpy()
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_encoder_2")+"model_450.pt"
+        weights_path = os.getenv("computer_encoder_2")+"model_500.pt"
     elif inp_name == 'photos':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0', '#E6E6FA',
                                      '#F08080', '#FFDAB9', '#D8BFD8'])
@@ -121,4 +121,4 @@ if __name__ == '__main__':
 
     pca_transform = PCA(n_components=2)
 
-    cluster()
+    eval_kmeans(graph)
