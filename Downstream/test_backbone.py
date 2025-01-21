@@ -78,7 +78,8 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_frozen")+"model_2000.pt"
+        # weights_path = os.getenv("cora_frozen")+"model_2000.pt"
+        weights_path = os.getenv("cora_gmm_frozen")+"model_2000.pt"
         graph = dataset[0]
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')

@@ -3,7 +3,7 @@ from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-from sklearn.metrics.cluster import normalized_mutual_info_score, v_measure_score, adjusted_rand_score
+from sklearn.metrics.cluster import normalized_mutual_info_score, v_measure_score, adjusted_rand_score, adjusted_mutual_info_score
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from matplotlib.colors import ListedColormap
@@ -77,18 +77,18 @@ if __name__ == '__main__':
             ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#E0FFFF", "#D8BFD8"])
         dataset = Planetoid(root=cora_path, name='Cora')
         graph = dataset[0]
-        weights_path = os.getenv("cora_encoder_2")+"model_2200.pt"
+        weights_path = os.getenv("cora_encoder_GMM")+"model_100.pt"
     elif inp_name == 'pubmed':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90'])
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder_2")+"model_500.pt"
+        weights_path = os.getenv("pubmed_encoder_GMM")+"model_75.pt"
     elif inp_name == 'citeseer':
         cmap_light = ListedColormap(
             ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#D8BFD8"])
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_encoder_2")+"model_2800.pt"
+        weights_path = os.getenv("citeseer_encoder_GMM")+"model_100.pt"
     elif inp_name == 'computers':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0',
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
@@ -116,9 +116,10 @@ if __name__ == '__main__':
     # graph = split(graph)
 
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=50)
+        n_components=2, learning_rate='auto', init='random', perplexity=80)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, random_state=0)
 
     pca_transform = PCA(n_components=2)
 
     eval_kmeans(graph)
+    cluster()
