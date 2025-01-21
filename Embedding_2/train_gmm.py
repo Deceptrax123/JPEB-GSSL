@@ -89,7 +89,7 @@ def training_loop():
         # Save weights
         if (epoch+1) % 25 == 0 and (epoch+1) >= 50:
             save_encoder_weights = os.getenv(
-                "pubmed_encoder_GMM")+f"model_{epoch+1}.pt"
+                "computer_encoder_GMM")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -122,10 +122,13 @@ if __name__ == '__main__':
         num_classes = 6
     elif inp_name == 'computers':
         graph = Amazon(root=computers_path, name='Computers')[0]
+        num_classes = 10
     elif inp_name == 'photos':
         graph = Amazon(root=photos_path, name='Photo')[0]
+        num_classes = 8
     elif inp_name == 'cs':
         graph = Coauthor(root=cs_path, name="CS")[0]
+        num_classes = 15
 
     num_targets = 3
     embedding_model = EmbeddingModel(

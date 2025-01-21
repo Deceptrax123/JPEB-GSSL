@@ -100,13 +100,15 @@ if __name__ == '__main__':
                                      '#F08080', '#FFDAB9', '#D8BFD8'])
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
-        weights_path = os.getenv("photo_encoder_2")+"model_600.pt"
+        # weights_path = os.getenv("photo_encoder_2")+"model_600.pt"
+        weights_path = os.getenv("photo_encoder_GMM")+"model_125.pt"
     elif inp_name == 'cs':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0', '#E6E6FA',
                                      '#F08080', '#FFDAB9', '#D8BFD8'])
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
-        weights_path = os.getenv("CS_encoder_2")+"model_1400.pt"
+        # weights_path = os.getenv("CS_encoder_2")+"model_1400.pt"
+        weights_path = os.getenv("CS_encoder_GMM")+"model_100.pt"
 
     model = ContextEncoder(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(

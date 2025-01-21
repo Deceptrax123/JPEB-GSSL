@@ -27,22 +27,20 @@ class GmmFull(MixtureModel):
         self,
         num_components: int,
         num_dims: int,
-        mixture_lr: float,
-        component_lr: float,
         init_radius: float = 1.0,
         init_mus: List[List[float]] = None
     ):
-        super().__init__(num_components, num_dims, mixture_lr, component_lr)
+        super().__init__(num_components, num_dims)
 
-        # self.mus = torch.nn.Parameter(
-        #     torch.tensor(init_mus, dtype=torch.float32)
-        #     if init_mus is not None
-        #     else torch.rand(num_components, num_dims).uniform_(-init_radius, init_radius)
-        # )
+        self.mus = torch.nn.Parameter(
+            torch.tensor(init_mus, dtype=torch.float32)
+            if init_mus is not None
+            else torch.rand(num_components, num_dims).uniform_(-init_radius, init_radius)
+        )
 
-        # # lower triangle representation of (symmetric) covariance matrix
-        # self.scale_tril = torch.nn.Parameter(
-        #     make_random_scale_trils(num_components, num_dims))
+        # lower triangle representation of (symmetric) covariance matrix
+        self.scale_tril = torch.nn.Parameter(
+            make_random_scale_trils(num_components, num_dims))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         mixture = Categorical(logits=self.logits)
