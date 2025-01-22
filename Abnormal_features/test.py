@@ -1,7 +1,6 @@
 from model import NodeClassifier
-from model_light import NodeClassifierLight
 from metrics import classification_multiclass_metrics
-from torch_geometric.datasets import Planetoid
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -54,26 +53,56 @@ if __name__ == '__main__':
     cora_path = os.getenv('Cora')
     pubmed_path = os.getenv('Pubmed')
     citeseer_path = os.getenv('CiteSeer')
+    computers_path = os.getenv('Computers')
+    photos_path = os.getenv('Photo')
+    cs_path = os.getenv("CS")
 
     ratio = eval(input('Enter ratio of test nodes to be distorted: '))
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
-        weights_path = os.getenv("cora_classification")+"model_50.pt"
+        # weights_path = os.getenv("cora_frozen")+"model_2000.pt"
+        weights_path = os.getenv("cora_gmm_frozen")+"model_2000.pt"
         graph = dataset[0]
-        model = NodeClassifier(features=graph.x.size(1),
-                               num_classes=dataset.num_classes)
+
+        split = T.RandomNodeSplit(num_test=1000, num_val=500)
+        graph = split(graph)
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        model = NodeClassifier(features=graph.x.size(1),
-                               num_classes=dataset.num_classes)
-        weights_path = os.getenv("pubmed_classification")+"model_75.pt"
+        # weights_path = os.getenv("pubmed_frozen")+"model_600.pt"
+        weights_path = os.getenv("pubmed_gmm_frozen")+"model_3500.pt"
+        split = T.RandomNodeSplit(num_test=1000, num_val=500)
+        graph = split(graph)
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_classification")+"model_200.pt"
-        model = NodeClassifierLight(features=graph.x.size(1),
-                                    num_classes=dataset.num_classes)
+        # weights_path = os.getenv("citeseer_frozen")+"model_2000.pt"
+        weights_path = os.getenv("citeseer_gmm_frozen")+"model_1200.pt"
+        split = T.RandomNodeSplit(num_test=1000, num_val=500)
+        graph = split(graph)
+    elif inp_name == 'computers':
+        dataset = Amazon(root=computers_path, name='Computers')
+        graph = dataset[0]
+        # weights_path = os.getenv("computer_frozen")+"model_600.pt"
+        weights_path = os.getenv("computer_gmm_frozen")+"model_1250.pt"
+        split = T.RandomNodeSplit(num_test=1000, num_val=0.1)
+        graph = split(graph)
+    elif inp_name == 'photos':
+        dataset = Amazon(root=photos_path, name='Photo')
+        graph = dataset[0]
+        weights_path = os.getenv("photo_gmm_frozen")+"model_5000.pt"
+        split = T.RandomNodeSplit(num_test=1000, num_val=0.1)
+        graph = split(graph)
+    elif inp_name == 'cs':
+        dataset = Coauthor(root=cs_path, name='CS')
+        graph = dataset[0]
+        weights_path = os.getenv('CS_gmm_frozen')+"model_4000.pt"
+        split = T.RandomNodeSplit(num_test=1000, num_val=0.1)
+        graph = split(graph)
+    # Add weights path here
+
+    model = NodeClassifier(features=graph.x.size(1),
+                           num_classes=dataset.num_classes)
 
     # Add weights path here
     model.load_state_dict(torch.load(
