@@ -1,7 +1,7 @@
 from torch_geometric.graphgym import init_weights
 from model import NodeClassifier
-from metrics import classification_multiclass_metrics, classification_binary_metrics
-from torch_geometric.datasets import Planetoid, Amazon
+from metrics import classification_multiclass_metrics
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
@@ -87,6 +87,8 @@ if __name__ == '__main__':
     pubmed_path = os.getenv('Pubmed')
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
+    citeseer_path = os.getenv('CiteSeer')
+    cs_path = os.getenv('CS')
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
@@ -104,6 +106,14 @@ if __name__ == '__main__':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
         weights_path = os.getenv("photo_encoder")+"model_265.pt"
+    elif inp_name == 'citeseer':
+        dataset = Planetoid(root=citeseer_path, name='Citeseer')
+        graph = dataset[0]
+        weights_path = os.getenv("citeseer_encoder")+"model_25900.pt"
+    elif inp_name == 'cs':
+        dataset = Coauthor(root=cs_path, name='CS')
+        graph = dataset[0]
+        weights_path = os.getenv("CS_encoder")+"model_85.pt"
 
     split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
     graph = split_function(graph)

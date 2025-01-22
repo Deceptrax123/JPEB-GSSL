@@ -8,8 +8,6 @@ import torch
 import os
 from dotenv import load_dotenv
 
-# TODO: Run 1000 tests for each dataset on different random splits.
-
 
 @torch.no_grad()
 def test(graph):
@@ -84,23 +82,26 @@ if __name__ == '__main__':
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_frozen")+"model_600.pt"
+        # weights_path = os.getenv("pubmed_frozen")+"model_600.pt"
+        weights_path = os.getenv("pubmed_gmm_frozen")+"model_3500.pt"
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='CiteSeer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_frozen")+"model_2000.pt"
+        # weights_path = os.getenv("citeseer_frozen")+"model_2000.pt"
+        weights_path = os.getenv("citeseer_gmm_frozen")+"model_1200.pt"
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_frozen")+"model_5000.pt"
+        # weights_path = os.getenv("computer_frozen")+"model_600.pt"
+        weights_path = os.getenv("computer_gmm_frozen")+"model_1250.pt"
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
-        weights_path = os.getenv("photo_frozen")+"model_3425.pt"
+        weights_path = os.getenv("photo_gmm_frozen")+"model_5000.pt"
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
-        weights_path = os.getenv('CS_frozen')+"model_6000.pt"
+        weights_path = os.getenv('CS_gmm_frozen')+"model_4000.pt"
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
 

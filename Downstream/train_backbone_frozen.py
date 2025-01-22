@@ -14,11 +14,6 @@ import gc
 from dotenv import load_dotenv
 
 
-def gradual_unfreeze():
-    for param in model.encoder.parameters():
-        param.requires_grad = True
-
-
 def train_epoch():
     model.zero_grad()
 
@@ -78,7 +73,7 @@ def training_loop():
 
             if (epoch+1) % 25 == 0:
                 save_path = os.getenv(
-                    "cora_gmm_frozen")+f"model_{epoch+1}.pt"
+                    "computer_gmm_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -111,35 +106,39 @@ if __name__ == '__main__':
     elif inp_name == 'pubmed':
         dataset = Planetoid(root=pubmed_path, name='PubMed')
         graph = dataset[0]
-        weights_path = os.getenv("pubmed_encoder_2")+"model_2300.pt"
+        weights_path = os.getenv("pubmed_encoder_GMM")+"model_100.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
     elif inp_name == 'citeseer':
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_encoder_2")+"model_50000.pt"
+        # weights_path = os.getenv("citeseer_encoder_2")+"model_50000.pt"
+        weights_path = os.getenv("citeseer_encoder_GMM")+"model_100.pt"
 
         split_function = T.RandomNodeSplit(num_val=500, num_test=1000)
         graph = split_function(graph)
     elif inp_name == 'computers':
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_encoder_2")+"model_500.pt"
+        # weights_path = os.getenv("computer_encoder_2")+"model_500.pt"
+        weights_path = os.getenv("computer_encoder_GMM")+"model_400.pt"
 
         split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
         graph = split_function(graph)
     elif inp_name == 'photos':
         dataset = Amazon(root=photos_path, name='Photo')
         graph = dataset[0]
-        weights_path = os.getenv("photo_encoder_2")+"model_600.pt"
+        # weights_path = os.getenv("photo_encoder_2")+"model_600.pt"
+        weights_path = os.getenv("photo_encoder_GMM")+"model_125.pt"
 
         split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
         graph = split_function(graph)
     elif inp_name == 'cs':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
-        weights_path = os.getenv("CS_encoder_2")+"model_1425.pt"
+        # weights_path = os.getenv("CS_encoder_2")+"model_1425.pt"
+        weights_path = os.getenv("CS_encoder_GMM")+"model_100.pt"
 
         split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
         graph = split_function(graph)
@@ -150,7 +149,7 @@ if __name__ == '__main__':
         weights_path, weights_only=True), strict=True)
     init_weights(model.classifier)
 
-    for param in model.encoder.parameters():
+    for param in model.encoder.parameters():  # Freeze Layers
         param.requires_grad = False
 
     objective_function = nn.CrossEntropyLoss()

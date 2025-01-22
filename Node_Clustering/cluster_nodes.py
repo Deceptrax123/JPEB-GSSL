@@ -94,7 +94,8 @@ if __name__ == '__main__':
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
         dataset = Amazon(root=computers_path, name='Computers')
         graph = dataset[0]
-        weights_path = os.getenv("computer_encoder_2")+"model_500.pt"
+        # weights_path = os.getenv("computer_encoder_2")+"model_500.pt"
+        weights_path = os.getenv("computer_encoder_GMM")+"model_400.pt"
     elif inp_name == 'photos':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0', '#E6E6FA',
                                      '#F08080', '#FFDAB9', '#D8BFD8'])
