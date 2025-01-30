@@ -41,7 +41,7 @@ def run(graph, ratio):
 
     acc, _, _ = test(graph)
 
-    print("Accuracy: ", acc*100)
+    print("Accuracy: ", 87.4-(acc*100))
 
 
 if __name__ == '__main__':
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     photos_path = os.getenv('Photo')
     cs_path = os.getenv("CS")
 
-    ratio = eval(input('Enter ratio of test nodes to be distorted: '))
+    # ratio = eval(input('Enter ratio of test nodes to be distorted: '))
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
         # weights_path = os.getenv("cora_frozen")+"model_2000.pt"
@@ -105,8 +105,10 @@ if __name__ == '__main__':
                            num_classes=dataset.num_classes)
 
     # Add weights path here
-    model.load_state_dict(torch.load(
-        weights_path, weights_only=True), strict=True)
-    model.eval()
+    ratios = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40]
+    for ratio in ratios:
+        model.load_state_dict(torch.load(
+            weights_path, weights_only=True), strict=True)
+        model.eval()
 
-    run(graph, ratio)
+        run(graph, ratio)

@@ -1,4 +1,4 @@
-from model import ContextEncoderLite, ContextEncoder
+from model import ContextEncoder
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
@@ -20,13 +20,11 @@ def eval_kmeans(graph):
     nmi_score = 0
     ari_score = 0
     for k in range(1, 11):
-        split = T.RandomNodeSplit(num_test=0.2, num_val=0.1)
-        graph = split(graph)
         z = model(graph.x, graph.edge_index).numpy()
 
         y_pred = kmeans_transform.fit_predict(
-            z[graph.test_mask].astype('double'))
-        y_true = graph.y[graph.test_mask].numpy()
+            z.astype('double'))
+        y_true = graph.y.numpy()
 
         nmi_score += v_measure_score(y_true, y_pred)
         ari_score += adjusted_rand_score(y_true, y_pred)
@@ -88,7 +86,7 @@ if __name__ == '__main__':
             ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0", "#D8BFD8"])
         dataset = Planetoid(root=citeseer_path, name='Citeseer')
         graph = dataset[0]
-        weights_path = os.getenv("citeseer_encoder_GMM")+"model_100.pt"
+        weights_path = os.getenv("citeseer_encoder_GMM")+"model_150.pt"
     elif inp_name == 'computers':
         cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0',
                                     '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
@@ -115,8 +113,6 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     model.eval()
-    # split = T.RandomNodeSplit(num_test=1000, num_val=500)
-    # graph = split(graph)
 
     tsne_transform = TSNE(
         n_components=2, learning_rate='auto', init='random', perplexity=80)
