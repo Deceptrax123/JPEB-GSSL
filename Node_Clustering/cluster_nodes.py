@@ -36,18 +36,6 @@ def eval_kmeans(graph):
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
     projected_2d = tsne_transform.fit_transform(z)
-    # projected_2d = pca_transform.fit_transform(z)
-
-    # x_min, x_max = projected_2d[:, 0].min()-1, projected_2d[:, 0].max()+1
-    # y_min, y_max = projected_2d[:, 1].min()-1, projected_2d[:, 1].max()+1
-
-    # xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
-    #                      np.arange(y_min, y_max, 0.02))
-    # kmeans_transform.fit(projected_2d.astype('double'))
-
-    # z_kmeans = kmeans_transform.predict(
-    #     np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)
-
     plt.figure(figsize=(8, 6))
     # plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 

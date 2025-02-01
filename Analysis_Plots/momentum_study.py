@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-
-# Data obtained from running tests by varying momentum parameter in target_update.py of embedding directory
 data = {
     'Momentum': [0, 0.8, 0.9, 0.99, 0.999, 1],
     'Accuracy': [76.46, 77.00, 77.00, 77.01, 74.93, 70.73]
