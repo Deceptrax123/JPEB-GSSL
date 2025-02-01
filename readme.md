@@ -6,7 +6,7 @@ Official code of our paper "Leveraging Joint Predictive Embedding and Bayesian I
 ```sh
 pip install -r requirements.txt
 ```
-- Create a ```.env``` file and set the values for all environment variables. 
+- Create a ```.env``` file and set the values of all environment variables. 
 - Download datasets by running ```embedding/download_data.py```
 - To train node embeddings, run the scripts in the ```embedding```folder. ```train.py``` trains embeddings without Bayesian Inference and ```train_gmm.py``` uses Bayesian Inference.
 - To test the embeddings on node classification, you may run the following scripts in the ```classification``` directory:
