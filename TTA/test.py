@@ -1,11 +1,8 @@
 from model import NodeClassifier
-from model_light import NodeClassifierLight
 from metrics import classification_multiclass_metrics
-from torch_geometric.utils import dropout_node
 from torch_geometric.datasets import Amazon, Coauthor, Planetoid
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
-from torch import nn
 import torch
 import os
 import random

@@ -3,7 +3,6 @@ from metrics import classification_multiclass_metrics
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
-from torch import nn
 import torch
 import os
 import random
