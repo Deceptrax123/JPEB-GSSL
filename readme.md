@@ -12,7 +12,7 @@ pip install -r requirements.txt
 - To test the embeddings on node classification, you may run the following scripts in the ```classification``` directory:
 - 1) Run ```train_backbone_frozen.py``` to train only the classifier head keeping the backbone frozen. We report these scores in our paper.
 - 2) Run ```train.py``` to update the weights of the backbone as well. 
-- 3) Similarly ```test_backbone.py``` and ```test.py``` runs node classification tests on frozen backbone and online backbones respectively.
+- 3) Similarly ```test_backbone.py``` and ```test.py``` runs node classification tests on frozen and online backbones respectively.
 - To test the embeddings on node clustering and plot them, run ```cluster_nodes.py``` in the ```node_clustering``` directory.
 - To perform tests such as augmenting node features with noise etc, run the ```test.py``` script in the ```abnormal_features``` directory.
 - To perform evaluations on OOD data during test time, run the ```test.py``` script in the ```tta``` directory.
