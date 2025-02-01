@@ -2,22 +2,24 @@ from torch_geometric.utils import dropout_node
 from torch_geometric.nn import global_mean_pool
 from Model.model import EmbeddingModel
 from Model.target_encoder import TargetEncoder
+from sklearn.mixture import GaussianMixture
+from sklearn.cluster import KMeans
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from target_update import ema_target_weights
 import torch_geometric.transforms as T
+import numpy as np
 import torch.multiprocessing as tmp
 from torch import nn
 import torch
 import os
 import wandb
-import gc
 from dotenv import load_dotenv
 
 
 def train_epoch():
     # View augmentations take place in the Embedding Class.
-    encoder_embeddings = embedding_model(graph)
+    encoder_embeddings, node_embeddings = embedding_model(graph)
 
     # Generate Targets based on Bernoulli Distribution
     target_loss = 0
@@ -38,10 +40,30 @@ def train_epoch():
         del target_embedding, target_features, node_mask, encoder_mask_features, subgraph_features
     del encoder_embeddings
 
-    loss = target_loss/num_targets
+    pseudo_labels = GaussianMixture(
+        n_components=num_classes).fit_predict(node_embeddings.detach().numpy())
+
+    kmeans_fit = KMeans(n_clusters=num_classes)
+    kmeans_fit.fit(node_embeddings.detach().numpy())
+    kmeans_labels = kmeans_fit.labels_
+
+    # Find Moments
+    pseudo_moment = torch.tensor(
+        np.dot(pseudo_labels.T, node_embeddings.detach().numpy())/np.sum(pseudo_labels))
+    label_moment = torch.tensor(
+        np.dot(kmeans_labels.T, node_embeddings.detach().numpy())/np.sum(kmeans_labels))
+
+    n1 = torch.norm(pseudo_moment)
+    n2 = torch.norm(label_moment)
+    norm_pseudo = torch.div(pseudo_moment, n1)
+    norm_label = torch.div(label_moment, n2)
+
+    constraint = constrain_loss(norm_pseudo, norm_label)
+    loss = (target_loss/num_targets)+constraint
     loss.backward()
 
     optimizer.step()
+
     # Update target encoder weight
     ema_target_weights(target_encoder, embedding_model.context_model)
 
@@ -64,9 +86,9 @@ def training_loop():
         print("Embedding Loss: ", train_loss.item())
 
         # Save weights
-        if (epoch+1) % 25 == 0:
+        if (epoch+1) % 25 == 0 and (epoch+1) >= 50:
             save_encoder_weights = os.getenv(
-                "computer_encoder_2")+f"model_{epoch+1}.pt"
+                "computer_encoder_GMM")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -90,16 +112,22 @@ if __name__ == '__main__':
 
     if inp_name == 'cora':
         graph = Planetoid(root=cora_path, name='Cora')[0]
+        num_classes = 7
     elif inp_name == 'pubmed':
         graph = Planetoid(root=pubmed_path, name='PubMed')[0]
+        num_classes = 3
     elif inp_name == 'citeseer':
         graph = Planetoid(root=citeseer_path, name='CiteSeer')[0]
+        num_classes = 6
     elif inp_name == 'computers':
         graph = Amazon(root=computers_path, name='Computers')[0]
+        num_classes = 10
     elif inp_name == 'photos':
         graph = Amazon(root=photos_path, name='Photo')[0]
+        num_classes = 8
     elif inp_name == 'cs':
         graph = Coauthor(root=cs_path, name="CS")[0]
+        num_classes = 15
 
     num_targets = 3
     embedding_model = EmbeddingModel(
@@ -112,11 +140,13 @@ if __name__ == '__main__':
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
         optimizer, T_0=75)
 
+    constrain_loss = nn.SmoothL1Loss()
+
     wandb.init(
-        project="Subgraph Embedding Development",
+        project="Subgraph Embedding Development using GMM",
         config={
             "Method": "Generative",
-            "Dataset": "Planetoid and Amazon"
+            "Dataset": "Planetoid, Amazon, Coauthor"
         }
     )
 

@@ -1,14 +1,10 @@
 from model import ContextEncoder
 from torch_geometric.datasets import Planetoid, Amazon, Coauthor
 from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
-from sklearn.metrics.cluster import normalized_mutual_info_score, v_measure_score, adjusted_rand_score, adjusted_mutual_info_score
-import torch_geometric.transforms as T
+from sklearn.metrics.cluster import v_measure_score, adjusted_rand_score
 import torch.multiprocessing as tmp
 from matplotlib.colors import ListedColormap
-from torch import nn
-import numpy as np
 import matplotlib.pyplot as plt
 import torch
 import os
@@ -105,8 +101,6 @@ if __name__ == '__main__':
     tsne_transform = TSNE(
         n_components=2, learning_rate='auto', init='random', perplexity=80)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, random_state=0)
-
-    pca_transform = PCA(n_components=2)
 
     eval_kmeans(graph)
     cluster()
