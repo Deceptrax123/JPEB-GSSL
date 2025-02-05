@@ -1,5 +1,5 @@
 # JPEB-GSSL
-Official code of our paper "Leveraging Joint Predictive Embedding and Bayesian Inference in Graph Self Supervised Learning".  The pre-print will be linked once it is out on Arxiv.
+Official code of our paper "Leveraging Joint Predictive Embedding and Bayesian Inference in Graph Self Supervised Learning". The preprint can be found <a href="https://github.com/Deceptrax123/JPEB-GSSL">here</a>.
 ![Diagram](framework_diagram.png)
 ## Running the scripts
 - Create a Python(preferrably >3.10) virtual environment and activate it. Run the following command
