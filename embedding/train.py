@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 
 def train_epoch():
     # View augmentations take place in the Embedding Class.
-    encoder_embeddings = embedding_model(graph)
+    encoder_embeddings,_ = embedding_model(graph)
 
     # Generate Targets based on Bernoulli Distribution
     target_loss = 0
