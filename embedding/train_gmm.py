@@ -4,7 +4,7 @@ from Model.model import EmbeddingModel
 from Model.target_encoder import TargetEncoder
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans
-from torch_geometric.datasets import Planetoid, Amazon, Coauthor
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from target_update import ema_target_weights
 import torch_geometric.transforms as T
@@ -33,7 +33,7 @@ def train_epoch():
         encoder_mask_features = encoder_embeddings[i]
 
         subgraph_features = global_mean_pool(
-            target_features, batch=graph.batch)
+            target_features, batch=None)
 
         target_loss += l2_loss(encoder_mask_features, subgraph_features)
 
@@ -88,7 +88,7 @@ def training_loop():
         # Save weights
         if (epoch+1) % 25 == 0 and (epoch+1) >= 50:
             save_encoder_weights = os.getenv(
-                "computer_encoder_GMM")+f"model_{epoch+1}.pt"
+                "wiki_encoder_GMM")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -109,6 +109,7 @@ if __name__ == '__main__':
     photos_path = os.getenv('Photo')
     physics_path = os.getenv('Physics')
     cs_path = os.getenv('CS')
+    wiki_path = os.getenv('wiki')
 
     if inp_name == 'cora':
         graph = Planetoid(root=cora_path, name='Cora')[0]
@@ -128,6 +129,12 @@ if __name__ == '__main__':
     elif inp_name == 'cs':
         graph = Coauthor(root=cs_path, name="CS")[0]
         num_classes = 15
+    elif inp_name == 'physics':
+        graph = Coauthor(root=physics_path, name='Physics')[0]
+        num_classes = 5
+    elif inp_name == 'wiki':
+        graph = WikiCS(root=wiki_path)
+        num_classes = 10
 
     num_targets = 3
     embedding_model = EmbeddingModel(

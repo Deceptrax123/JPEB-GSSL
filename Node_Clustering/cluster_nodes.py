@@ -1,5 +1,5 @@
 from model import ContextEncoder
-from torch_geometric.datasets import Planetoid, Amazon, Coauthor
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
 from sklearn.metrics.cluster import v_measure_score, adjusted_rand_score
@@ -53,6 +53,8 @@ if __name__ == '__main__':
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
     cs_path = os.getenv("CS")
+    physics_path = os.getenv('Physics')
+    wiki_path = os.getenv('wiki')
 
     if inp_name == 'cora':
         cmap_light = ListedColormap(
@@ -92,14 +94,25 @@ if __name__ == '__main__':
         graph = dataset[0]
         # weights_path = os.getenv("CS_encoder_2")+"model_1400.pt"
         weights_path = os.getenv("CS_encoder_GMM")+"model_100.pt"
-
+    elif inp_name == 'physics':
+        cmap_light = ListedColormap(
+            ["#ADD8E6", "#90EE90", "#F08080", "#FFB6C1", "#FFFFE0"])
+        dataset = Coauthor(root=physics_path, name='Physics')
+        graph = dataset[0]
+        weights_path = os.getenv('physics_encoder_GMM')+"model_100.pt"
+    elif inp_name == 'wiki':
+        cmap_light = ListedColormap(['#ADD8E6', '#FFB6C1', '#90EE90', '#FFFFE0',
+                                    '#E6E6FA', '#F08080', '#FFDAB9', '#D8BFD8', '#E0FFFF', '#FAFAD2'])
+        dataset = WikiCS(root=wiki_path)
+        graph = dataset[0]
+        weights_path = os.getenv('wiki_encoder_GMM')+"model_200.pt"
     model = ContextEncoder(in_features=graph.x.size(1))
     model.load_state_dict(torch.load(
         weights_path, weights_only=True), strict=True)
     model.eval()
 
     tsne_transform = TSNE(
-        n_components=2, learning_rate='auto', init='random', perplexity=80)
+        n_components=2, learning_rate='auto', init='random', perplexity=40)
     kmeans_transform = KMeans(n_clusters=dataset.num_classes, random_state=0)
 
     eval_kmeans(graph)

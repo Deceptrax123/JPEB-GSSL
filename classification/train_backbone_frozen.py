@@ -2,7 +2,7 @@
 from torch_geometric.graphgym import init_weights
 from model import NodeClassifier
 from metrics import classification_multiclass_metrics
-from torch_geometric.datasets import Planetoid, Amazon, Coauthor
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
@@ -73,7 +73,7 @@ def training_loop():
 
             if (epoch+1) % 25 == 0:
                 save_path = os.getenv(
-                    "computer_gmm_frozen")+f"model_{epoch+1}.pt"
+                    "wiki_gmm_frozen")+f"model_{epoch+1}.pt"
 
                 torch.save(model.state_dict(), save_path)
 
@@ -95,6 +95,8 @@ if __name__ == '__main__':
     photos_path = os.getenv('Photo')
     citeseer_path = os.getenv('CiteSeer')
     cs_path = os.getenv('CS')
+    physics_path = os.getenv('Physics')
+    wiki_path = os.getenv('wiki')
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
@@ -140,6 +142,18 @@ if __name__ == '__main__':
         # weights_path = os.getenv("CS_encoder_2")+"model_1425.pt"
         weights_path = os.getenv("CS_encoder_GMM")+"model_100.pt"
 
+        split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+        graph = split_function(graph)
+    elif inp_name == 'physics':
+        dataset = Coauthor(root=physics_path, name='Physics')
+        graph = dataset[0]
+        weights_path = os.getenv('physics_encoder_GMM')+"model_150.pt"
+        split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
+        graph = split_function(graph)
+    elif inp_name == 'wiki':
+        dataset = WikiCS(root=wiki_path)
+        graph = dataset[0]
+        weights_path = os.getenv('wiki_encoder_GMM')+"model_200.pt"
         split_function = T.RandomNodeSplit(num_val=0.1, num_test=0.2)
         graph = split_function(graph)
 

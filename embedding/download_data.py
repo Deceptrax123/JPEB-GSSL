@@ -1,4 +1,4 @@
-from torch_geometric.datasets import Planetoid, Amazon, Twitch, Coauthor
+from torch_geometric.datasets import Planetoid, Amazon, Twitch, Coauthor, WikiCS
 import os
 from dotenv import load_dotenv
 
@@ -16,6 +16,7 @@ def main():
     twitchru_path = os.getenv('Twitch_RU')
     physics_path = os.getenv('Physics')
     cs_path = os.getenv('CS')
+    wiki_path = os.getenv('wiki')
 
     if inp_name == 'cora':
         cora = Planetoid(root=cora_path, name='Cora')
@@ -35,6 +36,8 @@ def main():
         physics = Coauthor(root=physics_path, name='Physics')
     elif inp_name == 'cs':
         cs = Coauthor(root=cs_path, name='CS')
+    elif inp_name == 'wiki':
+        wiki = WikiCS(root=wiki_path)
 
 
 if __name__ == '__main__':

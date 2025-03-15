@@ -1,6 +1,6 @@
 from model import NodeClassifier
 from metrics import classification_multiclass_metrics
-from torch_geometric.datasets import Planetoid, Amazon, Coauthor
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS
 import torch_geometric.transforms as T
 import torch.multiprocessing as tmp
 from torch import nn
@@ -73,6 +73,8 @@ if __name__ == '__main__':
     computers_path = os.getenv('Computers')
     photos_path = os.getenv('Photo')
     cs_path = os.getenv("CS")
+    physics_path = os.getenv('Physics')
+    wiki_path = os.getenv('wiki')
 
     if inp_name == 'cora':
         dataset = Planetoid(root=cora_path, name='Cora')
@@ -102,6 +104,15 @@ if __name__ == '__main__':
         dataset = Coauthor(root=cs_path, name='CS')
         graph = dataset[0]
         weights_path = os.getenv('CS_gmm_frozen')+"model_4000.pt"
+    elif inp_name == 'physics':
+        dataset = Coauthor(root=physics_path, name='Physics')
+        graph = dataset[0]
+        weights_path = os.getenv('physics_gmm_frozen')+"model_1175.pt"
+    elif inp_name == 'wiki':
+        dataset = WikiCS(root=wiki_path)
+        graph = dataset[0]
+        weights_path = os.getenv('wiki_gmm_frozen')+"model_5000.pt"
+
     model = NodeClassifier(features=graph.x.size(1),
                            num_classes=dataset.num_classes)
 

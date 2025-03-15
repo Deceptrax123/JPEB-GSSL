@@ -22,7 +22,7 @@ class EmbeddingModel(Module):
         e_u = []
         for _ in range(self.num_targets):
             v = self.predictor_model(x, edge_index)
-            v_graph = global_mean_pool(v, batch=G.batch)
+            v_graph = global_mean_pool(v, batch=None)
             e_u.append(v_graph)
 
         return e_u, x
