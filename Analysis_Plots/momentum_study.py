@@ -13,7 +13,7 @@ df = pd.DataFrame(data)
 df['Momentum_Index'] = range(len(df['Momentum']))
 
 
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(8, 6), dpi=600)
 sns.lineplot(data=df, x='Momentum_Index', y='Accuracy', marker='o')
 
 plt.xticks(ticks=df['Momentum_Index'], labels=df['Momentum'], fontsize=10)
@@ -22,4 +22,4 @@ plt.xlabel('Momentum', fontsize=12)
 plt.ylabel('Accuracy', fontsize=12)
 plt.grid(True)
 
-plt.show()
+plt.savefig("analysis_plots/Ablations/momentum_accuracy.png", dpi=600)

@@ -4,7 +4,7 @@ from Model.model import EmbeddingModel
 from Model.target_encoder import TargetEncoder
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans
-from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS
+from torch_geometric.datasets import Planetoid, Amazon, Coauthor, WikiCS, WebKB
 from hyperparameters import LR, EPSILON, EPOCHS, BETAS
 from target_update import ema_target_weights
 import torch_geometric.transforms as T
@@ -88,7 +88,7 @@ def training_loop():
         # Save weights
         if (epoch+1) % 25 == 0 and (epoch+1) >= 50:
             save_encoder_weights = os.getenv(
-                "wiki_encoder_GMM")+f"model_{epoch+1}.pt"
+                "cornell_encoder_GMM")+f"model_{epoch+1}.pt"
 
             torch.save(embedding_model.context_model.state_dict(),
                        save_encoder_weights)
@@ -110,6 +110,9 @@ if __name__ == '__main__':
     physics_path = os.getenv('Physics')
     cs_path = os.getenv('CS')
     wiki_path = os.getenv('wiki')
+    cornell_path = os.getenv('cornell')
+    texas_path = os.getenv('texas')
+    wisconsin_path = os.getenv('wisconsin')
 
     if inp_name == 'cora':
         graph = Planetoid(root=cora_path, name='Cora')[0]
@@ -135,6 +138,15 @@ if __name__ == '__main__':
     elif inp_name == 'wiki':
         graph = WikiCS(root=wiki_path)
         num_classes = 10
+    elif inp_name == 'cornell':
+        graph = WebKB(root=cornell_path, name='Cornell')
+        num_classes = 5
+    elif inp_name == 'wisconsin':
+        graph = WebKB(root=wisconsin_path, name='Wisconsin')
+        num_classes = 5
+    elif inp_name == 'texas':
+        graph = WebKB(root=texas_path, name='Texas')
+        num_classes = 5
 
     num_targets = 3
     embedding_model = EmbeddingModel(

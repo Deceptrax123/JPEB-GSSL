@@ -32,13 +32,13 @@ def eval_kmeans(graph):
 def cluster():
     z = model(graph.x, graph.edge_index).numpy()
     projected_2d = tsne_transform.fit_transform(z)
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(8, 6), dpi=600)
     # plt.contourf(xx, yy, z_kmeans, cmap=cmap_light, alpha=0.6)
 
     plt.scatter(projected_2d[:, 0], projected_2d[:, 1],
                 c=list(graph.y.numpy()), s=50, edgecolor='k', cmap='viridis')
 
-    plt.show()
+    plt.savefig("analysis_plots/embedding_plot.png", dpi=600)
 
 
 if __name__ == '__main__':
